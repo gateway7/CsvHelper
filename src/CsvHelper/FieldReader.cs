@@ -10,9 +10,10 @@ namespace CsvHelper
 	/// </summary>
     public class FieldReader : IDisposable
     {
-	    private readonly char[] buffer;
-		private StringBuilder field = new StringBuilder();
-	    private int bufferPosition;
+		private readonly char[] buffer;
+		private readonly StringBuilder field = new StringBuilder();
+		private readonly StringBuilder rawRecord = new StringBuilder();
+		private int bufferPosition;
 	    private int fieldStartPosition;
 	    private int fieldEndPosition;
 	    private int rawRecordStartPosition;
@@ -22,7 +23,6 @@ namespace CsvHelper
 		private readonly CsvConfiguration configuration;
 		private long charPosition;
 		private long bytePosition;
-		private StringBuilder rawRecord = new StringBuilder();
 		private TextReader reader;
 		private bool isFieldBad;
 
@@ -106,7 +106,16 @@ namespace CsvHelper
 				charsRead = Reader.Read( buffer, 0, buffer.Length );
 			    if( charsRead == 0 )
 			    {
-				    return -1;
+					// End of file.
+
+					// Clear out the buffer in case the stream
+					// is written to again and we need to read some more.
+				    for( var i = 0; i < buffer.Length; i++ )
+				    {
+					    buffer[i] = '\0';
+				    }
+
+					return -1;
 			    }
 		    }
 

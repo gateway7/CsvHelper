@@ -106,6 +106,7 @@
     <Compile Include="Parsing\DelimiterTests.cs" />
     <Compile Include="Reading\ConstantTests.cs" />
     <Compile Include="Reading\EmptyTextReaderTests.cs" />
+    <Compile Include="Reading\MultipleGetRecordsTests.cs" />
     <Compile Include="Reading\MultipleHeadersTests.cs" />
     <Compile Include="Reading\ReadHeaderTests.cs" />
     <Compile Include="Reading\ShouldSkipRecordTests.cs" />
