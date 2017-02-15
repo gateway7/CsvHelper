@@ -3,13 +3,6 @@
 // See LICENSE.txt for details or visit http://www.opensource.org/licenses/ms-pl.html for MS-PL and http://opensource.org/licenses/Apache-2.0 for Apache 2.0.
 // http://csvhelper.com
 
-
-#if WINRT_4_5
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
-
-#endif
-
 namespace CsvHelper.Tests
 {
     using System.IO;
@@ -910,7 +903,7 @@ namespace CsvHelper.Tests
         }
 
         [Fact]
-        public void ContextQuotesTest()
+        public void UnescapeQuotesTest()
         {
             using (var stream = new MemoryStream())
             using (var writer = new StreamWriter(stream))
@@ -923,12 +916,21 @@ namespace CsvHelper.Tests
                 writer.Flush();
 
                 stream.Position = 0;
+                parser.Configuration.UnescapeQuotes = true;
 
                 var row = parser.Read();
+                
                 Assert.Equal("1", row[0]);
                 Assert.Equal("2\r\n2 (\"two\") continued\r\nend of 2", row[1]);
                 Assert.Equal("3", row[2]);
                 Assert.Equal(3, parser.RawRow);
+
+                stream.Position = 0;
+                parser.Configuration.UnescapeQuotes = false;
+
+                row = parser.Read();
+
+                Assert.Equal("2\r\n2 (\\\"two\\\") continued\r\nend of 2", row[1]);
             }
         }
 

@@ -150,12 +150,19 @@
 
             IsFieldBad = false;
 
-            var result = field.Replace("\\\"", "\"").Replace("\\'", "'").ToString();
-#if NET_2_0 || NET_3_5
-		    field = new StringBuilder();
-#else
+            if (Configuration.UnescapeQuotes)
+            {
+                field.Replace("\\\"", "\"").Replace("\\'", "'");
+            }
+
+            var result = field.ToString();
+
+            if (Configuration.IgnoreNullFields && result.Trim().Equals("null", StringComparison.OrdinalIgnoreCase))
+            {
+                result = null;
+            }
+
             field.Clear();
-#endif
 
             return result;
         }

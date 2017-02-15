@@ -16,23 +16,23 @@ namespace CsvHelper.Configuration
     /// </summary>
     public class CsvConfiguration : ICsvReaderConfiguration, ICsvWriterConfiguration
     {
-        private readonly CsvClassMapCollection maps = new CsvClassMapCollection();
+        private readonly CsvClassMapCollection _maps = new CsvClassMapCollection();
 
-        private string delimiter = CultureInfo.CurrentCulture.TextInfo.ListSeparator;
+        private string _delimiter = CultureInfo.CurrentCulture.TextInfo.ListSeparator;
 
-        private char quote = '"';
+        private char _quote = '"';
 
-        private string quoteString = "\"";
+        private string _quoteString = "\"";
 
-        private string doubleQuoteString = "\"\"";
+        private string _doubleQuoteString = "\"\"";
 
-        private char[] quoteRequiredChars;
+        private char[] _quoteRequiredChars;
 
-        private CultureInfo cultureInfo = CultureInfo.CurrentCulture;
+        private CultureInfo _cultureInfo = CultureInfo.CurrentCulture;
 
-        private bool quoteAllFields;
+        private bool _quoteAllFields;
 
-        private bool quoteNoFields;
+        private bool _quoteNoFields;
 
         /// <summary>
         /// Gets or sets the <see cref="TypeConverterOptionsFactory" />.
@@ -106,7 +106,7 @@ namespace CsvHelper.Configuration
         /// </summary>
         public virtual string Delimiter
         {
-            get { return delimiter; }
+            get { return _delimiter; }
             set
             {
                 if (value == "\n")
@@ -124,12 +124,12 @@ namespace CsvHelper.Configuration
                     throw new CsvConfigurationException("Null is not a valid delimiter.");
                 }
 
-                if (value == Convert.ToString(quote))
+                if (value == Convert.ToString(_quote))
                 {
                     throw new CsvConfigurationException("You can not use the quote as a delimiter.");
                 }
 
-                delimiter = value;
+                _delimiter = value;
 
                 BuildRequiredQuoteChars();
             }
@@ -141,7 +141,7 @@ namespace CsvHelper.Configuration
         /// </summary>
         public virtual char Quote
         {
-            get { return quote; }
+            get { return _quote; }
             set
             {
                 if (value == '\n')
@@ -159,15 +159,15 @@ namespace CsvHelper.Configuration
                     throw new CsvConfigurationException("Null is not a valid quote.");
                 }
 
-                if (Convert.ToString(value) == delimiter)
+                if (Convert.ToString(value) == _delimiter)
                 {
                     throw new CsvConfigurationException("You can not use the delimiter as a quote.");
                 }
 
-                quote = value;
+                _quote = value;
 
-                quoteString = Convert.ToString(value, cultureInfo);
-                doubleQuoteString = quoteString + quoteString;
+                _quoteString = Convert.ToString(value, _cultureInfo);
+                _doubleQuoteString = _quoteString + _quoteString;
             }
         }
 
@@ -177,7 +177,7 @@ namespace CsvHelper.Configuration
         /// <value>
         /// The new quote string.
         /// </value>
-        public virtual string QuoteString => quoteString;
+        public virtual string QuoteString => _quoteString;
 
         /// <summary>
         /// Gets a string representation of two of the currently configured Quote characters.
@@ -185,13 +185,13 @@ namespace CsvHelper.Configuration
         /// <value>
         /// The new double quote string.
         /// </value>
-        public virtual string DoubleQuoteString => doubleQuoteString;
+        public virtual string DoubleQuoteString => _doubleQuoteString;
 
         /// <summary>
         /// Gets an array characters that require
         /// the field to be quoted.
         /// </summary>
-        public virtual char[] QuoteRequiredChars => quoteRequiredChars;
+        public virtual char[] QuoteRequiredChars => _quoteRequiredChars;
 
         /// <summary>
         /// Gets or sets the character used to denote
@@ -223,14 +223,14 @@ namespace CsvHelper.Configuration
         /// </value>
         public virtual bool QuoteAllFields
         {
-            get { return quoteAllFields; }
+            get { return _quoteAllFields; }
             set
             {
-                quoteAllFields = value;
-                if (quoteAllFields && quoteNoFields)
+                _quoteAllFields = value;
+                if (_quoteAllFields && _quoteNoFields)
                 {
                     // Both can't be true at the same time.
-                    quoteNoFields = false;
+                    _quoteNoFields = false;
                 }
             }
         }
@@ -245,14 +245,14 @@ namespace CsvHelper.Configuration
         /// </value>
         public virtual bool QuoteNoFields
         {
-            get { return quoteNoFields; }
+            get { return _quoteNoFields; }
             set
             {
-                quoteNoFields = value;
-                if (quoteNoFields && quoteAllFields)
+                _quoteNoFields = value;
+                if (_quoteNoFields && _quoteAllFields)
                 {
                     // Both can't be true at the same time.
-                    quoteAllFields = false;
+                    _quoteAllFields = false;
                 }
             }
         }
@@ -275,8 +275,8 @@ namespace CsvHelper.Configuration
         /// </summary>
         public virtual CultureInfo CultureInfo
         {
-            get { return cultureInfo; }
-            set { cultureInfo = value; }
+            get { return _cultureInfo; }
+            set { _cultureInfo = value; }
         }
 
         /// <summary>
@@ -300,6 +300,21 @@ namespace CsvHelper.Configuration
         /// ingored when parsing and treated like any other character.
         /// </summary>
         public virtual bool IgnoreQuotes { get; set; }
+
+        /// <summary>
+        /// Unescape single and double quotes in string fields.
+        /// 
+        /// Defaults to [true].
+        /// </summary>
+        public bool UnescapeQuotes { get; set; }
+
+        /// <summary>
+        /// Remove all forms (caps-wise) of "null" the field, effectively allowing type 
+        /// converters to interpret its value as default for the corresponding field type.
+        /// 
+        /// Defaults to [true].
+        /// </summary>
+        public bool IgnoreNullFields { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating if private
@@ -355,6 +370,9 @@ namespace CsvHelper.Configuration
         /// </summary>
         public CsvConfiguration()
         {
+            //UnescapeQuotes = true;
+            //IgnoreNullFields = true;
+
             BuildRequiredQuoteChars();
         }
 
@@ -378,15 +396,15 @@ namespace CsvHelper.Configuration
         /// </summary>
         private void BuildRequiredQuoteChars()
         {
-            quoteRequiredChars = delimiter.Length > 1
+            _quoteRequiredChars = _delimiter.Length > 1
                 ? new[] { '\r', '\n' }
-                : new[] { '\r', '\n', delimiter[0] };
+                : new[] { '\r', '\n', _delimiter[0] };
         }
 
         /// <summary>
         /// The configured <see cref="CsvClassMap" />s.
         /// </summary>
-        public virtual CsvClassMapCollection Maps => maps;
+        public virtual CsvClassMapCollection Maps => _maps;
 
         /// <summary>
         /// Gets or sets a value indicating that during writing if a new
@@ -474,7 +492,7 @@ namespace CsvHelper.Configuration
         /// <param name="classMapType">The map type to unregister.</param>
         public virtual void UnregisterClassMap(Type classMapType)
         {
-            maps.Remove(classMapType);
+            _maps.Remove(classMapType);
         }
 
         /// <summary>
@@ -482,7 +500,7 @@ namespace CsvHelper.Configuration
         /// </summary>
         public virtual void UnregisterClassMap()
         {
-            maps.Clear();
+            _maps.Clear();
         }
 
         /// <summary>

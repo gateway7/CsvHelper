@@ -87,6 +87,17 @@
         char Quote { get; set; }
 
         /// <summary>
+        /// Unescape single and double quotes in string fields.
+        /// </summary>
+        bool UnescapeQuotes { get; set; }
+
+        /// <summary>
+        /// Remove all forms (caps-wise) of "null" the field, effectively allowing type 
+        /// converters to interpret its value as default for the corresponding field type.
+        /// </summary>
+        bool IgnoreNullFields { get; set; }
+
+        /// <summary>
         /// Gets or sets the delimiter used to separate fields.
         /// Default is ',';
         /// </summary>

@@ -24,6 +24,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="NuGet\**" />
+    <EmbeddedResource Remove="NuGet\**" />
+    <None Remove="NuGet\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
 

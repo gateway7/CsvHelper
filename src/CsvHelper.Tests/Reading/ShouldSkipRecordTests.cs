@@ -1,11 +1,4 @@
-﻿
-#if WINRT_4_5
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
-
-#endif
-
-namespace CsvHelper.Tests.Reading
+﻿namespace CsvHelper.Tests.Reading
 {
     using System.Collections.Generic;
     using System.Linq;
