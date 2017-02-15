@@ -3,16 +3,10 @@
 // See LICENSE.txt for details or visit http://www.opensource.org/licenses/ms-pl.html for MS-PL and http://opensource.org/licenses/Apache-2.0 for Apache 2.0.
 // http://csvhelper.com
 
-
-#if WINRT_4_5
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
-
-#endif
-
-namespace CsvHelper.Tests
+namespace CsvHelper.Tests.Mappings
 {
     using System;
+    using System.IO;
     using System.Linq;
     using CsvHelper.Configuration;
     using CsvHelper.TypeConversion;
@@ -40,6 +34,29 @@ namespace CsvHelper.Tests
             Assert.Equal("StringColumn", map.PropertyMaps[2].Data.Names.FirstOrDefault());
             Assert.Equal(2, map.PropertyMaps[2].Data.Index);
             Assert.Equal(typeof(StringConverter), map.PropertyMaps[2].Data.TypeConverter.GetType());
+        }
+
+        [Fact]
+        public void MapAnnotatedTest()
+        {
+            using (var stream = new MemoryStream())
+            using (var reader = new StreamReader(stream))
+            using (var writer = new StreamWriter(stream))
+            using (var csv = new CsvReader(reader))
+            {
+                writer.WriteLine("id,item_id,name,title");
+                writer.WriteLine(@"1,101,testtest,""new title""");
+                writer.Flush();
+                stream.Position = 0;
+
+                csv.Configuration.RegisterClass<AnnotatedClass>();
+
+                var records = csv.GetRecords<AnnotatedClass>().ToList();
+
+                Assert.True(records.Any());
+                Assert.Equal(101, records[0].Id);
+                Assert.Equal("new title", records[0].Name);
+            }
         }
 
         [Fact]
@@ -179,6 +196,17 @@ namespace CsvHelper.Tests
             {
                 Map(m => m.BId);
             }
+        }
+
+        private class AnnotatedClass
+        {
+            [CsvField("item_id")]
+            public int Id { get; set; }
+
+            [CsvField("title")]
+            public string Name { get; set; }
+
+            public string Desription { get; set; }
         }
 
         private class TestClass

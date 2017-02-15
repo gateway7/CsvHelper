@@ -112,8 +112,6 @@
         /// </summary>
         MemberTypes MemberTypes { get; set; }
 
-#if !NET_2_0
-
         /// <summary>
         /// The configured <see cref="CsvClassMap" />s.
         /// </summary>
@@ -140,6 +138,13 @@
         /// </summary>
         /// <param name="map">The class map to register.</param>
         void RegisterClassMap(CsvClassMap map);
+
+        /// <summary>
+        /// Creates a map of the specified class annotated with <see cref="CsvFieldAttribute"/> and registers it.
+        /// </summary>
+        /// <typeparam name="T">Type of the class to be registered.</typeparam>
+        /// <returns></returns>
+        CsvClassMap RegisterClass<T>() where T : class;
 
         /// <summary>
         /// Unregisters the class map.
@@ -172,6 +177,11 @@
         /// <returns>The generate map.</returns>
         CsvClassMap AutoMap(Type type);
 
-#endif
+        /// <summary>
+        /// Creates a map of the specified class annotated with <see cref="CsvFieldAttribute"/>.
+        /// </summary>
+        /// <typeparam name="T">Type of the class to be registered.</typeparam>
+        /// <returns></returns>
+        CsvClassMap Map<T>();
     }
 }

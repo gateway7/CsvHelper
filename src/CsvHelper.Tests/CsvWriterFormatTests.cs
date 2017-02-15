@@ -72,7 +72,7 @@ namespace CsvHelper.Tests
             stream.Position = 0;
             var reader = new StreamReader(stream);
             var csvFile = reader.ReadToEnd();
-            var expected = "first column,0001,01-Oct-12,$150.99\r\n";
+            const string expected = "first column,0001,01-Oct-12,$150.99\r\n";
 
             Assert.Equal(expected, csvFile);
         }

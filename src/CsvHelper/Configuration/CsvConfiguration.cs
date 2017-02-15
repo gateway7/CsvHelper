@@ -16,9 +16,7 @@ namespace CsvHelper.Configuration
     /// </summary>
     public class CsvConfiguration : ICsvReaderConfiguration, ICsvWriterConfiguration
     {
-#if !NET_2_0
         private readonly CsvClassMapCollection maps = new CsvClassMapCollection();
-#endif
 
         private string delimiter = CultureInfo.CurrentCulture.TextInfo.ListSeparator;
 
@@ -385,8 +383,6 @@ namespace CsvHelper.Configuration
                 : new[] { '\r', '\n', delimiter[0] };
         }
 
-#if !NET_2_0
-
         /// <summary>
         /// The configured <see cref="CsvClassMap" />s.
         /// </summary>
@@ -449,6 +445,20 @@ namespace CsvHelper.Configuration
         }
 
         /// <summary>
+        /// Creates a map of the specified class annotated with <see cref="CsvFieldAttribute"/> and registers it.
+        /// </summary>
+        /// <typeparam name="T">Type of the class to be registered.</typeparam>
+        /// <returns></returns>
+        public virtual CsvClassMap RegisterClass<T>() where T : class
+        {
+            var map = Map<T>();
+
+            RegisterClassMap(map);
+
+            return map;
+        }
+
+        /// <summary>
         /// Unregisters the class map.
         /// </summary>
         /// <typeparam name="TMap">The map type to unregister.</typeparam>
@@ -499,6 +509,40 @@ namespace CsvHelper.Configuration
             return map;
         }
 
-#endif
+        /// <summary>
+        /// Creates a map of the specified class annotated with <see cref="CsvFieldAttribute"/>.
+        /// </summary>
+        /// <typeparam name="T">Type of the class to be registered.</typeparam>
+        /// <returns></returns>
+        public virtual CsvClassMap Map<T>()
+        {
+            var map = new DefaultCsvClassMap<T>();
+
+            foreach (var propertyInfo in typeof(T).GetTypeInfo().GetProperties())
+            {
+                var fieldInfo = propertyInfo.GetCustomAttribute<CsvFieldAttribute>();
+
+                if (fieldInfo == null)
+                {
+                    continue;
+                }
+
+                var propertyMap = new CsvPropertyMap(propertyInfo);
+
+                if (fieldInfo.Name != null)
+                {
+                    propertyMap.Name(fieldInfo.Name);
+                }
+
+                if (fieldInfo.Index.HasValue)
+                {
+                    propertyMap.NameIndex(fieldInfo.Index.Value);
+                }
+
+                map.PropertyMaps.Add(propertyMap);
+            }
+
+            return map;
+        }
     }
 }
