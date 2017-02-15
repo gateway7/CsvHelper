@@ -2,58 +2,52 @@
 // This file is a part of CsvHelper and is dual licensed under MS-PL and Apache 2.0.
 // See LICENSE.txt for details or visit http://www.opensource.org/licenses/ms-pl.html for MS-PL and http://opensource.org/licenses/Apache-2.0 for Apache 2.0.
 // http://csvhelper.com
-using System;
-using System.Globalization;
-using CsvHelper.Configuration;
-using CsvHelper.TypeConversion;
+
+
 #if WINRT_4_5
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #else
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 #endif
 
 namespace CsvHelper.Tests.TypeConversion
 {
-	[TestClass]
-	public class CharConverterTests
-	{
-		[TestMethod]
-		public void ConvertToStringTest()
-		{
-			var converter = new CharConverter();
-			var propertyMapData = new CsvPropertyMapData( null )
-			{
-				TypeConverter = converter,
-				TypeConverterOptions = { CultureInfo = CultureInfo.CurrentCulture }
-			};
+    using System.Globalization;
+    using CsvHelper.Configuration;
+    using CsvHelper.TypeConversion;
+    using Xunit;
 
-			Assert.AreEqual( "a", converter.ConvertToString( 'a', null, propertyMapData ) );
+    public class CharConverterTests
+    {
+        [Fact]
+        public void ConvertToStringTest()
+        {
+            var converter = new CharConverter();
+            var propertyMapData = new CsvPropertyMapData(null)
+            {
+                TypeConverter = converter,
+                TypeConverterOptions = { CultureInfo = CultureInfo.CurrentCulture }
+            };
 
-			Assert.AreEqual( "True", converter.ConvertToString( true, null, propertyMapData ) );
+            Assert.Equal("a", converter.ConvertToString('a', null, propertyMapData));
 
-			Assert.AreEqual( "", converter.ConvertToString( null, null, propertyMapData ) );
-		}
+            Assert.Equal("True", converter.ConvertToString(true, null, propertyMapData));
 
-		[TestMethod]
-		public void ConvertFromStringTest()
-		{
-			var converter = new CharConverter();
+            Assert.Equal("", converter.ConvertToString(null, null, propertyMapData));
+        }
 
-			var propertyMapData = new CsvPropertyMapData( null );
-			propertyMapData.TypeConverterOptions.CultureInfo = CultureInfo.CurrentCulture;
+        [Fact]
+        public void ConvertFromStringTest()
+        {
+            var converter = new CharConverter();
 
-			Assert.AreEqual( 'a', converter.ConvertFromString( "a", null, propertyMapData ) );
-			Assert.AreEqual( 'a', converter.ConvertFromString( " a ", null, propertyMapData ) );
-			Assert.AreEqual( ' ', converter.ConvertFromString( " ", null, propertyMapData ) );
+            var propertyMapData = new CsvPropertyMapData(null) { TypeConverterOptions = { CultureInfo = CultureInfo.CurrentCulture } };
 
-			try
-			{
-				converter.ConvertFromString( null, null, propertyMapData );
-				Assert.Fail();
-			}
-			catch( CsvTypeConverterException )
-			{
-			}
-		}
-	}
+            Assert.Equal('a', converter.ConvertFromString("a", null, propertyMapData));
+            Assert.Equal('a', converter.ConvertFromString(" a ", null, propertyMapData));
+            Assert.Equal(' ', converter.ConvertFromString(" ", null, propertyMapData));
+
+            Assert.Throws<CsvTypeConverterException>(() => converter.ConvertFromString(null, null, propertyMapData));
+        }
+    }
 }

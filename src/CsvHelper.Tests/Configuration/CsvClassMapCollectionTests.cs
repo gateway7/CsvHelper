@@ -1,30 +1,29 @@
-﻿using CsvHelper.Configuration;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace CsvHelper.Tests.Configuration
+﻿namespace CsvHelper.Tests.Configuration
 {
-	[TestClass]
-	public class CsvClassMapCollectionTests
-	{
-		[TestMethod]
-		public void GetChildMapWhenParentIsMappedBeforeIt()
-		{
-			var parentMap = new ParentMap();
-			var childMap = new ChildMap();
-			var c = new CsvClassMapCollection();
-			c.Add( parentMap );
-			c.Add( childMap );
+    using CsvHelper.Configuration;
+    using Xunit;
 
-			var map = c[typeof( Child )];
-			Assert.AreEqual( childMap, map );
-		}
+    public class CsvClassMapCollectionTests
+    {
+        [Fact]
+        public void GetChildMapWhenParentIsMappedBeforeIt()
+        {
+            var parentMap = new ParentMap();
+            var childMap = new ChildMap();
+            var c = new CsvClassMapCollection();
+            c.Add(parentMap);
+            c.Add(childMap);
 
-		private class Parent { }
+            var map = c[typeof(Child)];
+            Assert.Equal(childMap, map);
+        }
 
-		private class Child : Parent { }
+        private class Parent {}
 
-		private sealed class ParentMap : CsvClassMap<Parent> { }
+        private class Child : Parent {}
 
-		private sealed class ChildMap : CsvClassMap<Child> { }
-	}
+        private sealed class ParentMap : CsvClassMap<Parent> {}
+
+        private sealed class ChildMap : CsvClassMap<Child> {}
+    }
 }

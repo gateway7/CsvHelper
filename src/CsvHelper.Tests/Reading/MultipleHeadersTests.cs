@@ -1,109 +1,110 @@
-﻿using System.IO;
-using CsvHelper.Configuration;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace CsvHelper.Tests.Reading
+﻿namespace CsvHelper.Tests.Reading
 {
-	[TestClass]
-	public class MultipleHeadersTests
-	{
-		[TestMethod]
-		public void ReadWithoutMapTest()
-		{
-			using( var stream = new MemoryStream() )
-			using( var reader = new StreamReader( stream ) )
-			using( var writer = new StreamWriter( stream ) )
-			using( var csv = new CsvReader( reader ) )
-			{
-				writer.WriteLine( "A,B" );
-				writer.WriteLine( "1,one" );
-				writer.WriteLine( "Y,Z" );
-				writer.WriteLine( "two,2" );
-				writer.Flush();
-				stream.Position = 0;
+    using System.IO;
+    using CsvHelper.Configuration;
+    using Xunit;
 
-				csv.Read();
-				csv.ReadHeader();
-				csv.Read();
+    public class MultipleHeadersTests
+    {
+        [Fact]
+        public void ReadWithoutMapTest()
+        {
+            using (var stream = new MemoryStream())
+            using (var reader = new StreamReader(stream))
+            using (var writer = new StreamWriter(stream))
+            using (var csv = new CsvReader(reader))
+            {
+                writer.WriteLine("A,B");
+                writer.WriteLine("1,one");
+                writer.WriteLine("Y,Z");
+                writer.WriteLine("two,2");
+                writer.Flush();
+                stream.Position = 0;
 
-				Assert.AreEqual( 1, csv.GetField<int>( "A" ) );
-				Assert.AreEqual( "one", csv.GetField( "B" ) );
+                csv.Read();
+                csv.ReadHeader();
+                csv.Read();
 
-				csv.Read();
-				csv.ReadHeader();
-				csv.Read();
+                Assert.Equal(1, csv.GetField<int>("A"));
+                Assert.Equal("one", csv.GetField("B"));
 
-				Assert.AreEqual( "two", csv.GetField( "Y" ) );
-				Assert.AreEqual( 2, csv.GetField<int>( "Z" ) );
-			}
-		}
+                csv.Read();
+                csv.ReadHeader();
+                csv.Read();
 
-		[TestMethod]
-		public void ReadWithMapTest()
-		{
-			using( var stream = new MemoryStream() )
-			using( var reader = new StreamReader( stream ) )
-			using( var writer = new StreamWriter( stream ) )
-			using( var csv = new CsvReader( reader ) )
-			{
-				writer.WriteLine( "A,B" );
-				writer.WriteLine( "1,one" );
-				writer.WriteLine( "Y,Z" );
-				writer.WriteLine( "two,2" );
-				writer.Flush();
-				stream.Position = 0;
+                Assert.Equal("two", csv.GetField("Y"));
+                Assert.Equal(2, csv.GetField<int>("Z"));
+            }
+        }
 
-				csv.Configuration.RegisterClassMap<AlphaMap>();
-				csv.Configuration.RegisterClassMap<OmegaMap>();
+        [Fact]
+        public void ReadWithMapTest()
+        {
+            using (var stream = new MemoryStream())
+            using (var reader = new StreamReader(stream))
+            using (var writer = new StreamWriter(stream))
+            using (var csv = new CsvReader(reader))
+            {
+                writer.WriteLine("A,B");
+                writer.WriteLine("1,one");
+                writer.WriteLine("Y,Z");
+                writer.WriteLine("two,2");
+                writer.Flush();
+                stream.Position = 0;
 
-				csv.Read();
-				csv.ReadHeader();
+                csv.Configuration.RegisterClassMap<AlphaMap>();
+                csv.Configuration.RegisterClassMap<OmegaMap>();
 
-				csv.Read();
-				var alphaRecord = csv.GetRecord<Alpha>();
+                csv.Read();
+                csv.ReadHeader();
 
-				Assert.AreEqual( 1, alphaRecord.A );
-				Assert.AreEqual( "one", alphaRecord.B );
+                csv.Read();
+                var alphaRecord = csv.GetRecord<Alpha>();
 
-				csv.Read();
-				csv.ReadHeader();
+                Assert.Equal(1, alphaRecord.A);
+                Assert.Equal("one", alphaRecord.B);
 
-				csv.Read();
-				var omegaRecord = csv.GetRecord<Omega>();
+                csv.Read();
+                csv.ReadHeader();
 
-				Assert.AreEqual( "two", omegaRecord.Y );
-				Assert.AreEqual( 2, omegaRecord.Z );
-			}
-		}
+                csv.Read();
+                var omegaRecord = csv.GetRecord<Omega>();
 
-		private class Alpha
-		{
-			public int A { get; set; }
-			public string B { get; set; }
-		}
+                Assert.Equal("two", omegaRecord.Y);
+                Assert.Equal(2, omegaRecord.Z);
+            }
+        }
 
-		private class Omega
-		{
-			public string Y { get; set; }
-			public int Z { get; set; }
-		}
+        private class Alpha
+        {
+            public int A { get; set; }
 
-		private sealed class AlphaMap : CsvClassMap<Alpha>
-		{
-			public AlphaMap()
-			{
-				Map( m => m.A );
-				Map( m => m.B );
-			}
-		}
+            public string B { get; set; }
+        }
 
-		private sealed class OmegaMap : CsvClassMap<Omega>
-		{
-			public OmegaMap()
-			{
-				Map( m => m.Y );
-				Map( m => m.Z );
-			}
-		}
-	}
+        private class Omega
+        {
+            public string Y { get; set; }
+
+            public int Z { get; set; }
+        }
+
+        private sealed class AlphaMap : CsvClassMap<Alpha>
+        {
+            public AlphaMap()
+            {
+                Map(m => m.A);
+                Map(m => m.B);
+            }
+        }
+
+        private sealed class OmegaMap : CsvClassMap<Omega>
+        {
+            public OmegaMap()
+            {
+                Map(m => m.Y);
+                Map(m => m.Z);
+            }
+        }
+    }
 }

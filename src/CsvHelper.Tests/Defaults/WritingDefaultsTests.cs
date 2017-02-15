@@ -1,121 +1,118 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using CsvHelper.Configuration;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace CsvHelper.Tests.Defaults
+﻿namespace CsvHelper.Tests.Defaults
 {
-	[TestClass]
-	public class WritingDefaultsTests
-	{
-		[TestMethod]
-		public void EmptyFieldsOnNullReferencePropertyTest()
-		{
-			using( var stream = new MemoryStream() )
-			using( var reader = new StreamReader( stream ) )
-			using( var writer = new StreamWriter( stream ) )
-			using( var csv = new CsvWriter( writer ) )
-			{
-				var records = new List<A>
-				{
-					new A
-					{
-						AId = 1,
-					},
-					new A
-					{
-						AId = 2,
-						B = new B
-						{
-							BId = 3,
-						},
-					},
-				};
+    using System.Collections.Generic;
+    using System.IO;
+    using CsvHelper.Configuration;
+    using Xunit;
 
-				csv.Configuration.UseNewObjectForNullReferenceMembers = false;
-				csv.Configuration.RegisterClassMap<AMap>();
-				csv.WriteRecords( records );
+    public class WritingDefaultsTests
+    {
+        [Fact]
+        public void EmptyFieldsOnNullReferencePropertyTest()
+        {
+            using (var stream = new MemoryStream())
+            using (var reader = new StreamReader(stream))
+            using (var writer = new StreamWriter(stream))
+            using (var csv = new CsvWriter(writer))
+            {
+                var records = new List<A>
+                {
+                    new A
+                    {
+                        AId = 1
+                    },
+                    new A
+                    {
+                        AId = 2,
+                        B = new B
+                        {
+                            BId = 3
+                        }
+                    }
+                };
 
-				writer.Flush();
-				stream.Position = 0;
+                csv.Configuration.UseNewObjectForNullReferenceMembers = false;
+                csv.Configuration.RegisterClassMap<AMap>();
+                csv.WriteRecords(records);
 
-				var data = reader.ReadToEnd();
-				var expected = "AId,BId,CId\r\n" +
-				               "1,,\r\n" +
-				               "2,3,0\r\n";
-				Assert.AreEqual( expected, data );
-			}
-		}
+                writer.Flush();
+                stream.Position = 0;
 
-		[TestMethod]
-		public void DefaultFieldsOnNullReferencePropertyTest()
-		{
-			using( var stream = new MemoryStream() )
-			using( var reader = new StreamReader( stream ) )
-			using( var writer = new StreamWriter( stream ) )
-			using( var csv = new CsvWriter( writer ) )
-			{
-				var records = new List<A>
-				{
-					new A
-					{
-						AId = 1,
-					},
-					new A
-					{
-						AId = 2,
-						B = new B
-						{
-							BId = 3,
-						},
-					},
-				};
+                var data = reader.ReadToEnd();
+                var expected = "AId,BId,CId\r\n" +
+                               "1,,\r\n" +
+                               "2,3,0\r\n";
+                Assert.Equal(expected, data);
+            }
+        }
 
-				csv.Configuration.RegisterClassMap<AMap>();
-				csv.WriteRecords( records );
+        [Fact]
+        public void DefaultFieldsOnNullReferencePropertyTest()
+        {
+            using (var stream = new MemoryStream())
+            using (var reader = new StreamReader(stream))
+            using (var writer = new StreamWriter(stream))
+            using (var csv = new CsvWriter(writer))
+            {
+                var records = new List<A>
+                {
+                    new A
+                    {
+                        AId = 1
+                    },
+                    new A
+                    {
+                        AId = 2,
+                        B = new B
+                        {
+                            BId = 3
+                        }
+                    }
+                };
 
-				writer.Flush();
-				stream.Position = 0;
+                csv.Configuration.RegisterClassMap<AMap>();
+                csv.WriteRecords(records);
 
-				var data = reader.ReadToEnd();
-				var expected = "AId,BId,CId\r\n" +
-							   "1,0,0\r\n" +
-							   "2,3,0\r\n";
-				Assert.AreEqual( expected, data );
-			}
-		}
+                writer.Flush();
+                stream.Position = 0;
 
-		private class A
-		{
-			public int AId { get; set; }
+                var data = reader.ReadToEnd();
+                var expected = "AId,BId,CId\r\n" +
+                               "1,0,0\r\n" +
+                               "2,3,0\r\n";
+                Assert.Equal(expected, data);
+            }
+        }
 
-			public B B { get; set; }
-		}
+        public class B
+        {
+            public int BId { get; set; }
 
-		private sealed class AMap : CsvClassMap<A>
-		{
-			public AMap()
-			{
-				Map( m => m.AId ).Default( 1 );
-				References<BMap>( m => m.B );
-			}
-		}
+            public int CId { get; set; }
+        }
 
-		public class B
-		{
-			public int BId { get; set; }
-			public int CId { get; set; }
-		}
+        public sealed class BMap : CsvClassMap<B>
+        {
+            public BMap()
+            {
+                AutoMap();
+            }
+        }
 
-		public sealed class BMap : CsvClassMap<B>
-		{
-			public BMap()
-			{
-				AutoMap();
-			}
-		}
-	}
+        private class A
+        {
+            public int AId { get; set; }
+
+            public B B { get; set; }
+        }
+
+        private sealed class AMap : CsvClassMap<A>
+        {
+            public AMap()
+            {
+                Map(m => m.AId).Default(1);
+                References<BMap>(m => m.B);
+            }
+        }
+    }
 }

@@ -1,61 +1,56 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace CsvHelper.Tests.Reflection
+﻿namespace CsvHelper.Tests.Reflection
 {
-	[TestClass]
-	public class GetPropertiesTests
-	{
-		[TestMethod]
-		public void FirstLevelTest()
-		{
-			var stack = ReflectionHelper.GetMembers<A>( a => a.P1 );
+    using Xunit;
 
-			Assert.AreEqual( 1, stack.Count );
-			Assert.AreEqual( "P1", stack.Pop().Name );
-		}
+    public class GetPropertiesTests
+    {
+        [Fact]
+        public void FirstLevelTest()
+        {
+            var stack = ReflectionHelper.GetMembers<A>(a => a.P1);
 
-		[TestMethod]
-		public void LastLevelTest()
-		{
-			var stack = ReflectionHelper.GetMembers<A>( a => a.B.C.D.P4 );
+            Assert.Equal(1, stack.Count);
+            Assert.Equal("P1", stack.Pop().Name);
+        }
 
-			Assert.AreEqual( 4, stack.Count );
-			Assert.AreEqual( "B", stack.Pop().Name );
-			Assert.AreEqual( "C", stack.Pop().Name );
-			Assert.AreEqual( "D", stack.Pop().Name );
-			Assert.AreEqual( "P4", stack.Pop().Name );
-		}
+        [Fact]
+        public void LastLevelTest()
+        {
+            var stack = ReflectionHelper.GetMembers<A>(a => a.B.C.D.P4);
 
-		public void ThirdLevelTest()
-		{
-		}
+            Assert.Equal(4, stack.Count);
+            Assert.Equal("B", stack.Pop().Name);
+            Assert.Equal("C", stack.Pop().Name);
+            Assert.Equal("D", stack.Pop().Name);
+            Assert.Equal("P4", stack.Pop().Name);
+        }
 
-		private class A
-		{
-			public string P1 { get; set; }
-			public B B { get; set; }
-		}
+        public void ThirdLevelTest() {}
 
-		private class B
-		{
-			public string P2 { get; set; }
-			public C C { get; set; }
-		}
+        private class A
+        {
+            public string P1 { get; set; }
 
-		private class C
-		{
-			public string P3 { get; set; }
-			public D D { get; set; }
-		}
+            public B B { get; set; }
+        }
 
-		private class D
-		{
-			public string P4 { get; set; }
-		}
-	}
+        private class B
+        {
+            public string P2 { get; set; }
+
+            public C C { get; set; }
+        }
+
+        private class C
+        {
+            public string P3 { get; set; }
+
+            public D D { get; set; }
+        }
+
+        private class D
+        {
+            public string P4 { get; set; }
+        }
+    }
 }

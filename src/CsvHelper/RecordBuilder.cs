@@ -1,83 +1,82 @@
-﻿using System;
-
-namespace CsvHelper
+﻿namespace CsvHelper
 {
-	/// <summary>
-	/// Builds CSV records.
-	/// </summary>
+    using System;
+
+    /// <summary>
+    /// Builds CSV records.
+    /// </summary>
     public class RecordBuilder
     {
-	    private const int DEFAULT_CAPACITY = 16;
-	    private string[] record;
-	    private int position;
-		private int capacity;
+        private const int DEFAULT_CAPACITY = 16;
 
-		/// <summary>
-		/// The number of records.
-		/// </summary>
-	    public int Length => position;
+        private string[] record;
 
-		/// <summary>
-		/// The total record capacity.
-		/// </summary>
-		public int Capacity => capacity;
+        /// <summary>
+        /// The number of records.
+        /// </summary>
+        public int Length { get; private set; }
 
-		/// <summary>
-		/// Creates a new <see cref="RecordBuilder"/> using defaults.
-		/// </summary>
-	    public RecordBuilder() : this( DEFAULT_CAPACITY ) { }
+        /// <summary>
+        /// The total record capacity.
+        /// </summary>
+        public int Capacity { get; private set; }
 
-		/// <summary>
-		/// Creatse a new <see cref="RecordBuilder"/> using the given capacity.
-		/// </summary>
-		/// <param name="capacity">The initial capacity.</param>
-	    public RecordBuilder( int capacity )
-	    {
-		    this.capacity = capacity > 0 ? capacity : DEFAULT_CAPACITY;
+        /// <summary>
+        /// Creates a new <see cref="RecordBuilder" /> using defaults.
+        /// </summary>
+        public RecordBuilder() : this(DEFAULT_CAPACITY) {}
 
-		    record = new string[capacity];
-	    }
+        /// <summary>
+        /// Creatse a new <see cref="RecordBuilder" /> using the given capacity.
+        /// </summary>
+        /// <param name="capacity">The initial capacity.</param>
+        public RecordBuilder(int capacity)
+        {
+            Capacity = capacity > 0 ? capacity : DEFAULT_CAPACITY;
 
-		/// <summary>
-		/// Adds a new field to the <see cref="RecordBuilder"/>.
-		/// </summary>
-		/// <param name="field">The field to add.</param>
-		/// <returns>The current instance of the <see cref="RecordBuilder"/>.</returns>
-		public virtual RecordBuilder Add( string field )
-	    {
-			if( position == record.Length )
-			{
-				capacity = capacity * 2;
-				Array.Resize( ref record, capacity );
-			}
+            record = new string[capacity];
+        }
 
-			record[position] = field;
-		    position++;
+        /// <summary>
+        /// Adds a new field to the <see cref="RecordBuilder" />.
+        /// </summary>
+        /// <param name="field">The field to add.</param>
+        /// <returns>The current instance of the <see cref="RecordBuilder" />.</returns>
+        public virtual RecordBuilder Add(string field)
+        {
+            if (Length == record.Length)
+            {
+                Capacity = Capacity * 2;
+                Array.Resize(ref record, Capacity);
+            }
 
-		    return this;
-	    }
+            record[Length] = field;
+            Length++;
 
-		/// <summary>
-		/// Clears the records.
-		/// </summary>
-		/// <returns>The current instance of the <see cref="RecordBuilder"/>.</returns>
-	    public virtual RecordBuilder Clear()
-	    {
-		    position = 0;
+            return this;
+        }
 
-		    return this;
-	    }
+        /// <summary>
+        /// Clears the records.
+        /// </summary>
+        /// <returns>The current instance of the <see cref="RecordBuilder" />.</returns>
+        public virtual RecordBuilder Clear()
+        {
+            Length = 0;
 
-		/// <summary>
-		/// Returns the record as an <see cref="T:string[]"/>.
-		/// </summary>
-		/// <returns>The record as an <see cref="T:string[]"/>.</returns>
-		public virtual string[] ToArray()
-	    {
-		    var array = new string[position];
-		    Array.Copy( record, array, position );
+            return this;
+        }
 
-			return array;
-	    }
+        /// <summary>
+        /// Returns the record as an <see cref="T:string[]" />.
+        /// </summary>
+        /// <returns>The record as an <see cref="T:string[]" />.</returns>
+        public virtual string[] ToArray()
+        {
+            var array = new string[Length];
+            Array.Copy(record, array, Length);
+
+            return array;
+        }
     }
 }

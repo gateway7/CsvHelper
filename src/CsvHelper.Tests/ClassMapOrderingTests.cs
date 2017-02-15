@@ -2,115 +2,115 @@
 // This file is a part of CsvHelper and is dual licensed under MS-PL and Apache 2.0.
 // See LICENSE.txt for details or visit http://www.opensource.org/licenses/ms-pl.html for MS-PL and http://opensource.org/licenses/Apache-2.0 for Apache 2.0.
 // http://csvhelper.com
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using CsvHelper.Configuration;
+
+
 #if WINRT_4_5
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #else
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 #endif
 
 namespace CsvHelper.Tests
 {
-	[TestClass]
-	public class ClassMapOrderingTests
-	{
-		[TestMethod]
-		public void OrderingTest()
-		{
-			var list = new List<ContainerClass>
-			{
-				new ContainerClass
-				{
-					Contents = new ThirdClass
-					{
-						Third = 3,
-						Second = new SecondClass
-						{
-							Second = 2,
-						},
-						First = new FirstClass
-						{
-							First = 1,
-						},
-					}
-				},
-			};
+    using System.Collections.Generic;
+    using System.IO;
+    using CsvHelper.Configuration;
+    using Xunit;
 
-			using( var stream = new MemoryStream() )
-			using( var reader = new StreamReader( stream ) )
-			using( var writer = new StreamWriter( stream ) )
-			using( var csv = new CsvWriter( writer ) )
-			{
-				csv.Configuration.RegisterClassMap<ContainerClassMap>();
-				csv.WriteRecords( list );
-				writer.Flush();
-				stream.Position = 0;
+    public class ClassMapOrderingTests
+    {
+        [Fact]
+        public void OrderingTest()
+        {
+            var list = new List<ContainerClass>
+            {
+                new ContainerClass
+                {
+                    Contents = new ThirdClass
+                    {
+                        Third = 3,
+                        Second = new SecondClass
+                        {
+                            Second = 2
+                        },
+                        First = new FirstClass
+                        {
+                            First = 1
+                        }
+                    }
+                }
+            };
 
-				Assert.AreEqual( "First,Second,Third", reader.ReadLine() );
-			}
-		}
+            using (var stream = new MemoryStream())
+            using (var reader = new StreamReader(stream))
+            using (var writer = new StreamWriter(stream))
+            using (var csv = new CsvWriter(writer))
+            {
+                csv.Configuration.RegisterClassMap<ContainerClassMap>();
+                csv.WriteRecords(list);
+                writer.Flush();
+                stream.Position = 0;
 
-		private class ContainerClass
-		{
-			public ThirdClass Contents { get; set; }
-		}
+                Assert.Equal("First,Second,Third", reader.ReadLine());
+            }
+        }
 
-		private class ThirdClass
-		{
-			public int Third { get; set; }
+        private class ContainerClass
+        {
+            public ThirdClass Contents { get; set; }
+        }
 
-			public SecondClass Second { get; set; }
+        private class ThirdClass
+        {
+            public int Third { get; set; }
 
-			public FirstClass First { get; set; }
-		}
+            public SecondClass Second { get; set; }
 
-		private sealed class ContainerClassMap : CsvClassMap<ContainerClass>
-		{
-			public ContainerClassMap()
-			{
-				References<ThirdClassMap>( m => m.Contents );
-			}
-		}
+            public FirstClass First { get; set; }
+        }
 
-		private sealed class ThirdClassMap : CsvClassMap<ThirdClass>
-		{
-			public ThirdClassMap()
-			{
-				References<FirstClassMap>( m => m.First );
-				References<SecondClassMap>( m => m.Second );
-				Map( m => m.Third );
-			}
-		}
+        private sealed class ContainerClassMap : CsvClassMap<ContainerClass>
+        {
+            public ContainerClassMap()
+            {
+                References<ThirdClassMap>(m => m.Contents);
+            }
+        }
 
-		private class SecondClass
-		{
-			public int Second { get; set; }
-		}
+        private sealed class ThirdClassMap : CsvClassMap<ThirdClass>
+        {
+            public ThirdClassMap()
+            {
+                References<FirstClassMap>(m => m.First);
+                References<SecondClassMap>(m => m.Second);
+                Map(m => m.Third);
+            }
+        }
 
-		private sealed class SecondClassMap : CsvClassMap<SecondClass>
-		{
-			public SecondClassMap()
-			{
-				Map( m => m.Second );
-			}
-		}
+        private class SecondClass
+        {
+            public int Second { get; set; }
+        }
 
-		private class FirstClass
-		{
-			public int First { get; set; }
-		}
+        private sealed class SecondClassMap : CsvClassMap<SecondClass>
+        {
+            public SecondClassMap()
+            {
+                Map(m => m.Second);
+            }
+        }
 
-		private sealed class FirstClassMap : CsvClassMap<FirstClass>
-		{
-			public FirstClassMap()
-			{
-				Map( m => m.First );
-			}
-		}
-	}
+        private class FirstClass
+        {
+            public int First { get; set; }
+        }
+
+        private sealed class FirstClassMap : CsvClassMap<FirstClass>
+        {
+            public FirstClassMap()
+            {
+                Map(m => m.First);
+            }
+        }
+    }
 }

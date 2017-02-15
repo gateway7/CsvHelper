@@ -2,63 +2,57 @@
 // This file is a part of CsvHelper and is dual licensed under MS-PL and Apache 2.0.
 // See LICENSE.txt for details or visit http://www.opensource.org/licenses/ms-pl.html for MS-PL and http://opensource.org/licenses/Apache-2.0 for Apache 2.0.
 // http://csvhelper.com
-using System;
-using System.Globalization;
-using CsvHelper.Configuration;
 
 namespace CsvHelper.TypeConversion
 {
-	/// <summary>
-	/// Converts a <see cref="bool"/> to and from a <see cref="string"/>.
-	/// </summary>
-	public class BooleanConverter : DefaultTypeConverter
-	{
-		/// <summary>
-		/// Converts the string to an object.
-		/// </summary>
-		/// <param name="text">The string to convert to an object.</param>
-		/// <param name="row">The <see cref="ICsvReaderRow"/> for the current record.</param>
-		/// <param name="propertyMapData">The <see cref="CsvPropertyMapData"/> for the property/field being created.</param>
-		/// <returns>The object created from the string.</returns>
-		public override object ConvertFromString( string text, ICsvReaderRow row, CsvPropertyMapData propertyMapData )
-		{
-			bool b;
-			if( bool.TryParse( text, out b ) )
-			{
-				return b;
-			}
+    using System.Globalization;
+    using System.Linq;
+    using Configuration;
 
-			short sh;
-			if( short.TryParse( text, out sh ) )
-			{
-				if( sh == 0 )
-				{
-					return false;
-				}
-				if( sh == 1 )
-				{
-					return true;
-				}
-			}
+    /// <summary>
+    /// Converts a <see cref="bool" /> to and from a <see cref="string" />.
+    /// </summary>
+    public class BooleanConverter : DefaultTypeConverter
+    {
+        /// <summary>
+        /// Converts the string to an object.
+        /// </summary>
+        /// <param name="text">The string to convert to an object.</param>
+        /// <param name="row">The <see cref="ICsvReaderRow" /> for the current record.</param>
+        /// <param name="propertyMapData">The <see cref="CsvPropertyMapData" /> for the property/field being created.</param>
+        /// <returns>The object created from the string.</returns>
+        public override object ConvertFromString(string text, ICsvReaderRow row, CsvPropertyMapData propertyMapData)
+        {
+            if (bool.TryParse(text, out bool b))
+            {
+                return b;
+            }
 
-			var t = ( text ?? string.Empty ).Trim();
-			foreach( var trueValue in propertyMapData.TypeConverterOptions.BooleanTrueValues )
-			{
-				if( propertyMapData.TypeConverterOptions.CultureInfo.CompareInfo.Compare( trueValue, t, CompareOptions.IgnoreCase ) == 0 )
-				{
-					return true;
-				}
-			}
+            if (short.TryParse(text, out short sh))
+            {
+                switch (sh)
+                {
+                    case 0:
+                        return false;
 
-			foreach( var falseValue in propertyMapData.TypeConverterOptions.BooleanFalseValues )
-			{
-				if( propertyMapData.TypeConverterOptions.CultureInfo.CompareInfo.Compare( falseValue, t, CompareOptions.IgnoreCase ) == 0 )
-				{
-					return false;
-				}
-			}
+                    case 1:
+                        return true;
+                }
+            }
 
-			return base.ConvertFromString( text, row, propertyMapData );
-		}
-	}
+            var t = (text ?? string.Empty).Trim();
+
+            if (propertyMapData.TypeConverterOptions.BooleanTrueValues.Any(trueValue => propertyMapData.TypeConverterOptions.CultureInfo.CompareInfo.Compare(trueValue, t, CompareOptions.IgnoreCase) == 0))
+            {
+                return true;
+            }
+
+            if (propertyMapData.TypeConverterOptions.BooleanFalseValues.Any(falseValue => propertyMapData.TypeConverterOptions.CultureInfo.CompareInfo.Compare(falseValue, t, CompareOptions.IgnoreCase) == 0))
+            {
+                return false;
+            }
+
+            return base.ConvertFromString(text, row, propertyMapData);
+        }
+    }
 }

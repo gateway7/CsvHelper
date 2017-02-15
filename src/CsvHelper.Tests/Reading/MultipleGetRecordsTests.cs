@@ -1,52 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace CsvHelper.Tests.Reading
+﻿namespace CsvHelper.Tests.Reading
 {
-	[TestClass]
-	public class MultipleGetRecordsTests
-	{
-		[TestMethod]
-		public void Blah()
-		{
-			using( var stream = new MemoryStream() )
-			using( var reader = new StreamReader( stream ) )
-			using( var writer = new StreamWriter( stream ) )
-			using( var csv = new CsvReader( reader ) )
-			{
-				writer.WriteLine( "Id,Name" );
-				writer.WriteLine( "1,one" );
-				writer.Flush();
-				stream.Position = 0;
+    using System.IO;
+    using System.Linq;
+    using Xunit;
 
-				var records = csv.GetRecords<Test>().ToList();
+    public class MultipleGetRecordsTests
+    {
+        [Fact]
+        public void Blah()
+        {
+            using (var stream = new MemoryStream())
+            using (var reader = new StreamReader(stream))
+            using (var writer = new StreamWriter(stream))
+            using (var csv = new CsvReader(reader))
+            {
+                writer.WriteLine("Id,Name");
+                writer.WriteLine("1,one");
+                writer.Flush();
+                stream.Position = 0;
 
-				var position = stream.Position;
-				writer.WriteLine( "2,two" );
-				writer.Flush();
-				stream.Position = position;
+                var records = csv.GetRecords<Test>().ToList();
 
-				records = csv.GetRecords<Test>().ToList();
+                var position = stream.Position;
+                writer.WriteLine("2,two");
+                writer.Flush();
+                stream.Position = position;
 
-				writer.WriteLine( "2,two" );
-				writer.Flush();
-				stream.Position = position;
+                records = csv.GetRecords<Test>().ToList();
 
-				Assert.AreEqual( 1, records.Count );
-				Assert.AreEqual( 2, records[0].Id );
-				Assert.AreEqual( "two", records[0].Name );
-			}
-		}
+                writer.WriteLine("2,two");
+                writer.Flush();
+                stream.Position = position;
 
-		private class Test
-		{
-			public int Id { get; set; }
-			public string Name { get; set; }
-		}
-	}
+                Assert.Equal(1, records.Count);
+                Assert.Equal(2, records[0].Id);
+                Assert.Equal("two", records[0].Name);
+            }
+        }
+
+        private class Test
+        {
+            public int Id { get; set; }
+
+            public string Name { get; set; }
+        }
+    }
 }

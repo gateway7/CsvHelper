@@ -2,47 +2,50 @@
 // This file is a part of CsvHelper and is dual licensed under MS-PL and Apache 2.0.
 // See LICENSE.txt for details or visit http://www.opensource.org/licenses/ms-pl.html for MS-PL and http://opensource.org/licenses/Apache-2.0 for Apache 2.0.
 // http://csvhelper.com
-using System.Collections.Generic;
-using System.Linq;
-using CsvHelper.Configuration;
-using CsvHelper.Tests.Mocks;
+
+
 #if WINRT_4_5
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #else
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 #endif
 
 namespace CsvHelper.Tests
 {
-	[TestClass]
-	public class CsvReaderSubClassingTests
-	{
-		[TestMethod]
-		public void GetRecordTest()
-		{
-			var data = new List<string[]>
-			{
-				new[] { "Id", "Name" },
-				new[] { "1", "one" },
-				new[] { "2", "two" },
-				null
-			};
+    using System.Collections.Generic;
+    using System.Linq;
+    using Mocks;
+    using Xunit;
 
-			var parserMock = new ParserMock( new Queue<string[]>( data ) );
+    public class CsvReaderSubClassingTests
+    {
+        [Fact]
+        public void GetRecordTest()
+        {
+            var data = new List<string[]>
+            {
+                new[] { "Id", "Name" },
+                new[] { "1", "one" },
+                new[] { "2", "two" },
+                null
+            };
 
-			var csvReader = new MyCsvReader( parserMock );
-			csvReader.GetRecords<Test>().ToList();
-		}
+            var parserMock = new ParserMock(new Queue<string[]>(data));
 
-		private class MyCsvReader : CsvReader
-		{
-			public MyCsvReader( ICsvParser parser ) : base( parser ){}
-		}
+            var csvReader = new MyCsvReader(parserMock);
+            csvReader.GetRecords<Test>().ToList();
+        }
 
-		private class Test
-		{
-			public int Id { get; set; }
-			public string Name { get; set; }
-		}
-	}
+        private class MyCsvReader : CsvReader
+        {
+            public MyCsvReader(ICsvParser parser) : base(parser) {}
+        }
+
+        private class Test
+        {
+            public int Id { get; set; }
+
+            public string Name { get; set; }
+        }
+    }
 }

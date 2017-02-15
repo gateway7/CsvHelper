@@ -2,31 +2,25 @@
 // This file is a part of CsvHelper and is dual licensed under MS-PL and Apache 2.0.
 // See LICENSE.txt for details or visit http://www.opensource.org/licenses/ms-pl.html for MS-PL and http://opensource.org/licenses/Apache-2.0 for Apache 2.0.
 // http://csvhelper.com
-using System;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using CsvHelper.Configuration;
-using CsvHelper.TypeConversion;
-#if WINRT_4_5
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
 
 namespace CsvHelper.Tests
 {
-    [TestClass]
+    using System;
+    using System.Globalization;
+    using System.IO;
+    using System.Linq;
+    using CsvHelper.Configuration;
+    using CsvHelper.TypeConversion;
+    using Xunit;
+
     public class CsvReaderErrorMessageTests
     {
-        [TestInitialize]
-        public void TestInitialize()
+        public CsvReaderErrorMessageTests()
         {
-            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
         }
 
-        [TestMethod]
+        [Fact]
         public void FirstColumnEmptyFirstRowErrorWithNoHeaderTest()
         {
             using (var stream = new MemoryStream())
@@ -49,13 +43,13 @@ namespace CsvHelper.Tests
                 }
                 catch (CsvTypeConverterException ex)
                 {
-	                Assert.AreEqual( 1, ex.Row );
-	                Assert.AreEqual( 0, ex.FieldIndex );
+                    Assert.Equal(1, ex.Row);
+                    Assert.Equal(0, ex.FieldIndex);
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void FirstColumnEmptySecondRowErrorWithHeader()
         {
             using (var stream = new MemoryStream())
@@ -78,13 +72,13 @@ namespace CsvHelper.Tests
                 }
                 catch (CsvTypeConverterException ex)
                 {
-	                Assert.AreEqual( 3, ex.Row );
-	                Assert.AreEqual( 0, ex.FieldIndex );
+                    Assert.Equal(3, ex.Row);
+                    Assert.Equal(0, ex.FieldIndex);
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void FirstColumnEmptyErrorWithHeaderAndCommentRowTest()
         {
             using (var stream = new MemoryStream())
@@ -102,20 +96,20 @@ namespace CsvHelper.Tests
                 writer.Flush();
                 stream.Position = 0;
 
-	            try
-	            {
-		            var records = csvReader.GetRecords<Test1>().ToList();
-		            throw new Exception();
-	            }
-	            catch( CsvTypeConverterException ex )
-	            {
-		            Assert.AreEqual( 4, ex.Row );
-		            Assert.AreEqual( 0, ex.FieldIndex );
-	            }
+                try
+                {
+                    var records = csvReader.GetRecords<Test1>().ToList();
+                    throw new Exception();
+                }
+                catch (CsvTypeConverterException ex)
+                {
+                    Assert.Equal(4, ex.Row);
+                    Assert.Equal(0, ex.FieldIndex);
+                }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void FirstColumnErrorTest()
         {
             using (var stream = new MemoryStream())
@@ -138,13 +132,13 @@ namespace CsvHelper.Tests
                 }
                 catch (CsvTypeConverterException ex)
                 {
-					Assert.AreEqual( 3, ex.Row );
-					Assert.AreEqual( 0, ex.FieldIndex );
-				}
-			}
+                    Assert.Equal(3, ex.Row);
+                    Assert.Equal(0, ex.FieldIndex);
+                }
+            }
         }
 
-        [TestMethod]
+        [Fact]
         public void SecondColumnEmptyErrorTest()
         {
             using (var stream = new MemoryStream())
@@ -166,13 +160,13 @@ namespace CsvHelper.Tests
                 }
                 catch (CsvTypeConverterException ex)
                 {
-					Assert.AreEqual( 2, ex.Row );
-					Assert.AreEqual( 1, ex.FieldIndex );
-				}
-			}
+                    Assert.Equal(2, ex.Row);
+                    Assert.Equal(1, ex.FieldIndex);
+                }
+            }
         }
 
-        [TestMethod]
+        [Fact]
         public void Test()
         {
             using (var stream = new MemoryStream())

@@ -1,82 +1,82 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using CsvHelper.Configuration;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace CsvHelper.Tests
+﻿namespace CsvHelper.Tests
 {
-	[TestClass]
-	public class MapPropertyMultipleTimesTests
-	{
-		[TestMethod]
-		public void MapProperitesToMultipleFieldsWhenWritingTest()
-		{
-			using( var stream = new MemoryStream() )
-			using( var reader = new StreamReader( stream ) )
-			using( var writer = new StreamWriter( stream ) )
-			using( var csv = new CsvWriter( writer ) )
-			{
-				var list = new List<Test>
-				{
-					new Test { Id = 1, Name = "one" }
-				};
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+    using CsvHelper.Configuration;
+    using Xunit;
 
-				csv.Configuration.RegisterClassMap<TestMap>();
-				csv.WriteRecords( list );
-				writer.Flush();
-				stream.Position = 0;
+    public class MapPropertyMultipleTimesTests
+    {
+        [Fact]
+        public void MapPropertiesToMultipleFieldsWhenWritingTest()
+        {
+            using (var stream = new MemoryStream())
+            using (var reader = new StreamReader(stream))
+            using (var writer = new StreamWriter(stream))
+            using (var csv = new CsvWriter(writer))
+            {
+                var list = new List<Test>
+                {
+                    new Test { Id = 1, Name = "one" }
+                };
 
-				var expected = new StringBuilder();
-				expected.AppendLine( "Id1,Name1,Id2,Name2" );
-				expected.AppendLine( "1,one,1,one" );
+                csv.Configuration.RegisterClassMap<TestMap>();
+                csv.WriteRecords(list);
+                writer.Flush();
+                stream.Position = 0;
 
-				var result = reader.ReadToEnd();
+                var expected = new StringBuilder();
+                expected.AppendLine("Id1,Name1,Id2,Name2");
+                expected.AppendLine("1,one,1,one");
 
-				Assert.AreEqual( expected.ToString(), result );
-			}
-		}
+                var result = reader.ReadToEnd();
 
-		[TestMethod]
-		public void MapPropertiesToMultipleFieldsWhenReadingTest()
-		{
-			// This is not something that anyone should do, but this
-			// is the expected behavior if they do.
+                Assert.Equal(expected.ToString(), result);
+            }
+        }
 
-			using( var stream = new MemoryStream() )
-			using( var reader = new StreamReader( stream ) )
-			using( var writer = new StreamWriter( stream ) )
-			using( var csv = new CsvReader( reader ) )
-			{
-				writer.WriteLine( "Id1,Name1,Id2,Name2" );
-				writer.WriteLine( "1,one,2,two" );
-				writer.Flush();
-				stream.Position = 0;
+        [Fact]
+        public void MapPropertiesToMultipleFieldsWhenReadingTest()
+        {
+            // This is not something that anyone should do, but this
+            // is the expected behavior if they do.
 
-				csv.Configuration.RegisterClassMap<TestMap>();
-				var records = csv.GetRecords<Test>().ToList();
+            using (var stream = new MemoryStream())
+            using (var reader = new StreamReader(stream))
+            using (var writer = new StreamWriter(stream))
+            using (var csv = new CsvReader(reader))
+            {
+                writer.WriteLine("Id1,Name1,Id2,Name2");
+                writer.WriteLine("1,one,2,two");
+                writer.Flush();
+                stream.Position = 0;
 
-				Assert.AreEqual( 2, records[0].Id );
-				Assert.AreEqual( "two", records[0].Name );
-			}
-		}
+                csv.Configuration.RegisterClassMap<TestMap>();
+                var records = csv.GetRecords<Test>().ToList();
 
-		private class Test
-		{
-			public int Id { get; set; }
-			public string Name { get; set; }
-		}
+                Assert.Equal(2, records[0].Id);
+                Assert.Equal("two", records[0].Name);
+            }
+        }
 
-		private sealed class TestMap : CsvClassMap<Test>
-		{
-			public TestMap()
-			{
-				Map( m => m.Id ).Name( "Id1" );
-				Map( m => m.Name ).Name( "Name1" );
-				Map( m => m.Id, false ).Name( "Id2" );
-				Map( m => m.Name, false ).Name( "Name2" );
-			}
-		}
-	}
+        private class Test
+        {
+            public int Id { get; set; }
+
+            public string Name { get; set; }
+        }
+
+        private sealed class TestMap : CsvClassMap<Test>
+        {
+            public TestMap()
+            {
+                Map(m => m.Id).Name("Id1");
+                Map(m => m.Name).Name("Name1");
+                Map(m => m.Id, false).Name("Id2");
+                Map(m => m.Name, false).Name("Name2");
+            }
+        }
+    }
 }

@@ -1,182 +1,172 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using CsvHelper.Tests.Mocks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace CsvHelper.Tests.Reading
+﻿namespace CsvHelper.Tests.Reading
 {
-	[TestClass]
-	public class TryGetTests
-	{
-		[TestMethod]
-		public void TryGetFieldInvalidIndexTest()
-		{
-			var data1 = new[] { "One", "Two" };
-			var data2 = new[] { "one", "two" };
-			var queue = new Queue<string[]>();
-			queue.Enqueue( data1 );
-			queue.Enqueue( data2 );
-			queue.Enqueue( null );
-			var parserMock = new ParserMock( queue );
+    using System;
+    using System.Collections.Generic;
+    using Mocks;
+    using Xunit;
 
-			var reader = new CsvReader( parserMock );
-			reader.Read();
+    public class TryGetTests
+    {
+        [Fact]
+        public void TryGetFieldInvalidIndexTest()
+        {
+            var data1 = new[] { "One", "Two" };
+            var data2 = new[] { "one", "two" };
+            var queue = new Queue<string[]>();
+            queue.Enqueue(data1);
+            queue.Enqueue(data2);
+            queue.Enqueue(null);
+            var parserMock = new ParserMock(queue);
 
-			int field;
-			var got = reader.TryGetField( 0, out field );
-			Assert.IsFalse( got );
-			Assert.AreEqual( default( int ), field );
-		}
+            var reader = new CsvReader(parserMock);
+            reader.Read();
 
-		[TestMethod]
-		public void TryGetFieldInvalidNameTest()
-		{
-			var data1 = new[] { "One", "Two" };
-			var data2 = new[] { "one", "two" };
-			var queue = new Queue<string[]>();
-			queue.Enqueue( data1 );
-			queue.Enqueue( data2 );
-			queue.Enqueue( null );
-			var parserMock = new ParserMock( queue );
+            int field;
+            var got = reader.TryGetField(0, out field);
+            Assert.False(got);
+            Assert.Equal(default(int), field);
+        }
 
-			var reader = new CsvReader( parserMock );
-			reader.Read();
+        [Fact]
+        public void TryGetFieldInvalidNameTest()
+        {
+            var data1 = new[] { "One", "Two" };
+            var data2 = new[] { "one", "two" };
+            var queue = new Queue<string[]>();
+            queue.Enqueue(data1);
+            queue.Enqueue(data2);
+            queue.Enqueue(null);
+            var parserMock = new ParserMock(queue);
 
-			int field;
-			var got = reader.TryGetField( "One", out field );
-			Assert.IsFalse( got );
-			Assert.AreEqual( default( int ), field );
-		}
+            var reader = new CsvReader(parserMock);
+            reader.Read();
 
-		[TestMethod]
-		public void TryGetFieldTest()
-		{
-			var data1 = new[] { "One", "Two" };
-			var data2 = new[] { "1", "2" };
-			var queue = new Queue<string[]>();
-			queue.Enqueue( data1 );
-			queue.Enqueue( data2 );
-			queue.Enqueue( null );
-			var parserMock = new ParserMock( queue );
+            var got = reader.TryGetField("One", out int field);
+            Assert.False(got);
+            Assert.Equal(default(int), field);
+        }
 
-			var reader = new CsvReader( parserMock );
-			reader.Read();
-			reader.ReadHeader();
-			reader.Read();
+        [Fact]
+        public void TryGetFieldTest()
+        {
+            var data1 = new[] { "One", "Two" };
+            var data2 = new[] { "1", "2" };
+            var queue = new Queue<string[]>();
+            queue.Enqueue(data1);
+            queue.Enqueue(data2);
+            queue.Enqueue(null);
+            var parserMock = new ParserMock(queue);
 
-			int field;
-			var got = reader.TryGetField( 0, out field );
-			Assert.IsTrue( got );
-			Assert.AreEqual( 1, field );
-		}
+            var reader = new CsvReader(parserMock);
+            reader.Read();
+            reader.ReadHeader();
+            reader.Read();
 
-		[TestMethod]
-		public void TryGetFieldStrictTest()
-		{
-			var data1 = new[] { "One", "Two" };
-			var data2 = new[] { "1", "2" };
-			var queue = new Queue<string[]>();
-			queue.Enqueue( data1 );
-			queue.Enqueue( data2 );
-			queue.Enqueue( null );
-			var parserMock = new ParserMock( queue );
+            var got = reader.TryGetField(0, out int field);
+            Assert.True(got);
+            Assert.Equal(1, field);
+        }
 
-			var reader = new CsvReader( parserMock ) { Configuration = { WillThrowOnMissingField = true } };
-			reader.Read();
-			reader.ReadHeader();
-			reader.Read();
+        [Fact]
+        public void TryGetFieldStrictTest()
+        {
+            var data1 = new[] { "One", "Two" };
+            var data2 = new[] { "1", "2" };
+            var queue = new Queue<string[]>();
+            queue.Enqueue(data1);
+            queue.Enqueue(data2);
+            queue.Enqueue(null);
+            var parserMock = new ParserMock(queue);
 
-			int field;
-			var got = reader.TryGetField( "One", out field );
-			Assert.IsTrue( got );
-			Assert.AreEqual( 1, field );
-		}
+            var reader = new CsvReader(parserMock) { Configuration = { WillThrowOnMissingField = true } };
+            reader.Read();
+            reader.ReadHeader();
+            reader.Read();
 
-		[TestMethod]
-		public void TryGetFieldEmptyDate()
-		{
-			// DateTimeConverter.IsValid() doesn't work correctly
-			// so we need to test and make sure that the conversion
-			// fails for an emptry string for a date.
-			var data = new[] { " " };
-			var queue = new Queue<string[]>();
-			queue.Enqueue( data );
-			queue.Enqueue( null );
-			var parserMock = new ParserMock( queue );
+            var got = reader.TryGetField("One", out int field);
+            Assert.True(got);
+            Assert.Equal(1, field);
+        }
 
-			var reader = new CsvReader( parserMock );
-			reader.Configuration.HasHeaderRecord = false;
-			reader.Read();
+        [Fact]
+        public void TryGetFieldEmptyDate()
+        {
+            // DateTimeConverter.IsValid() doesn't work correctly
+            // so we need to test and make sure that the conversion
+            // fails for an empty string for a date.
+            var data = new[] { " " };
+            var queue = new Queue<string[]>();
+            queue.Enqueue(data);
+            queue.Enqueue(null);
+            var parserMock = new ParserMock(queue);
 
-			DateTime field;
-			var got = reader.TryGetField( 0, out field );
+            var reader = new CsvReader(parserMock);
+            reader.Configuration.HasHeaderRecord = false;
+            reader.Read();
 
-			Assert.IsFalse( got );
-			Assert.AreEqual( DateTime.MinValue, field );
-		}
+            var got = reader.TryGetField(0, out DateTime field);
 
-		[TestMethod]
-		public void TryGetNullableFieldEmptyDate()
-		{
-			// DateTimeConverter.IsValid() doesn't work correctly
-			// so we need to test and make sure that the conversion
-			// fails for an emptry string for a date.
-			var data = new[] { " " };
-			var queue = new Queue<string[]>();
-			queue.Enqueue( data );
-			queue.Enqueue( null );
-			var parserMock = new ParserMock( queue );
+            Assert.False(got);
+            Assert.Equal(DateTime.MinValue, field);
+        }
 
-			var reader = new CsvReader( parserMock );
-			reader.Configuration.HasHeaderRecord = false;
-			reader.Read();
+        [Fact]
+        public void TryGetNullableFieldEmptyDate()
+        {
+            // DateTimeConverter.IsValid() doesn't work correctly
+            // so we need to test and make sure that the conversion
+            // fails for an emptry string for a date.
+            var data = new[] { " " };
+            var queue = new Queue<string[]>();
+            queue.Enqueue(data);
+            queue.Enqueue(null);
+            var parserMock = new ParserMock(queue);
 
-			DateTime? field;
-			var got = reader.TryGetField( 0, out field );
+            var reader = new CsvReader(parserMock);
+            reader.Configuration.HasHeaderRecord = false;
+            reader.Read();
 
-			Assert.IsFalse( got );
-			Assert.IsNull( field );
-		}
+            var got = reader.TryGetField(0, out DateTime? field);
 
-		[TestMethod]
-		public void TryGetDoesNotThrowWhenWillThrowOnMissingFieldIsEnabled()
-		{
-			var data = new[] { "1" };
-			var queue = new Queue<string[]>();
-			queue.Enqueue( data );
-			queue.Enqueue( null );
-			var parserMock = new ParserMock( queue );
+            Assert.False(got);
+            Assert.Null(field);
+        }
 
-			var reader = new CsvReader( parserMock );
-			reader.Configuration.WillThrowOnMissingField = true;
-			reader.Read();
-			string field;
-			Assert.IsFalse( reader.TryGetField( "test", out field ) );
-		}
+        [Fact]
+        public void TryGetDoesNotThrowWhenWillThrowOnMissingFieldIsEnabled()
+        {
+            var data = new[] { "1" };
+            var queue = new Queue<string[]>();
+            queue.Enqueue(data);
+            queue.Enqueue(null);
+            var parserMock = new ParserMock(queue);
 
-		[TestMethod]
-		public void TryGetFieldIndexTest()
-		{
-			var parserMock = new ParserMock
-			{
-				{ "One", "Two", "Two" },
-				{ "1", "2", "3" }
-			};
-			var reader = new CsvReader( parserMock );
-			reader.Read();
-			reader.ReadHeader();
-			reader.Read();
+            var reader = new CsvReader(parserMock);
+            reader.Configuration.WillThrowOnMissingField = true;
+            reader.Read();
+            Assert.False(reader.TryGetField("test", out string field));
+        }
 
-			int field;
-			var got = reader.TryGetField( "Two", 0, out field );
-			Assert.IsTrue( got );
-			Assert.AreEqual( 2, field );
+        [Fact]
+        public void TryGetFieldIndexTest()
+        {
+            var parserMock = new ParserMock
+            {
+                { "One", "Two", "Two" },
+                { "1", "2", "3" }
+            };
+            var reader = new CsvReader(parserMock);
+            reader.Read();
+            reader.ReadHeader();
+            reader.Read();
 
-			got = reader.TryGetField( "Two", 1, out field );
-			Assert.IsTrue( got );
-			Assert.AreEqual( 3, field );
-		}
-	}
+            var got = reader.TryGetField("Two", 0, out int field);
+            Assert.True(got);
+            Assert.Equal(2, field);
+
+            got = reader.TryGetField("Two", 1, out field);
+            Assert.True(got);
+            Assert.Equal(3, field);
+        }
+    }
 }

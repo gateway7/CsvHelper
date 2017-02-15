@@ -2,93 +2,93 @@
 // This file is a part of CsvHelper and is licensed under the MS-PL
 // See LICENSE.txt for details or visit http://www.opensource.org/licenses/ms-pl.html
 // http://csvhelper.com
-using System.IO;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CsvHelper.Configuration;
 
 namespace CsvHelper.Tests
 {
-	[TestClass]
-	public class CsvReaderReferenceMappingPrefixTests
-	{
-		[TestMethod]
-		public void ReferencesWithPrefixTest()
-		{
-			using( var stream = new MemoryStream() )
-			using( var reader = new StreamReader( stream ) )
-			using( var writer = new StreamWriter( stream ) )
-			using( var csv = new CsvReader( reader ) )
-			{
-				csv.Configuration.RegisterClassMap<AMap>();
+    using System.IO;
+    using System.Linq;
+    using CsvHelper.Configuration;
+    using Xunit;
 
-				writer.WriteLine( "Id,BPrefix_Id,C.CId" );
-				writer.WriteLine( "a1,b1,c1" );
-				writer.WriteLine( "a2,b2,c2" );
-				writer.WriteLine( "a3,b3,c3" );
-				writer.WriteLine( "a4,b4,c4" );
-				writer.Flush();
-				stream.Position = 0;
+    public class CsvReaderReferenceMappingPrefixTests
+    {
+        [Fact]
+        public void ReferencesWithPrefixTest()
+        {
+            using (var stream = new MemoryStream())
+            using (var reader = new StreamReader(stream))
+            using (var writer = new StreamWriter(stream))
+            using (var csv = new CsvReader(reader))
+            {
+                csv.Configuration.RegisterClassMap<AMap>();
 
-				var list = csv.GetRecords<A>().ToList();
+                writer.WriteLine("Id,BPrefix_Id,C.CId");
+                writer.WriteLine("a1,b1,c1");
+                writer.WriteLine("a2,b2,c2");
+                writer.WriteLine("a3,b3,c3");
+                writer.WriteLine("a4,b4,c4");
+                writer.Flush();
+                stream.Position = 0;
 
-				Assert.IsNotNull( list );
-				Assert.AreEqual( 4, list.Count );
+                var list = csv.GetRecords<A>().ToList();
 
-				for( var i = 0; i < 4; i++ )
-				{
-					var rowId = i + 1;
-					var row = list[i];
-					Assert.AreEqual( "a" + rowId, row.Id );
-					Assert.AreEqual( "b" + rowId, row.B.Id );
-					Assert.AreEqual( "c" + rowId, row.B.C.Id );
-				}
-			}
-		}
+                Assert.NotNull(list);
+                Assert.Equal(4, list.Count);
 
-		private class A
-		{
-			public string Id { get; set; }
+                for (var i = 0; i < 4; i++)
+                {
+                    var rowId = i + 1;
+                    var row = list[i];
+                    Assert.Equal("a" + rowId, row.Id);
+                    Assert.Equal("b" + rowId, row.B.Id);
+                    Assert.Equal("c" + rowId, row.B.C.Id);
+                }
+            }
+        }
 
-			public B B { get; set; }
-		}
+        private class A
+        {
+            public string Id { get; set; }
 
-		private class B
-		{
-			public string Id { get; set; }
+            public B B { get; set; }
+        }
 
-			public C C { get; set; }
-		}
+        private class B
+        {
+            public string Id { get; set; }
 
-		private class C
-		{
-			public string Id { get; set; }
-		}
+            public C C { get; set; }
+        }
 
-		private sealed class AMap : CsvClassMap<A>
-		{
-			public AMap()
-			{
-				Map( m => m.Id );
-				References<BMap>( m => m.B ).Prefix( "BPrefix_" );
-			}
-		}
+        private class C
+        {
+            public string Id { get; set; }
+        }
 
-		private sealed class BMap : CsvClassMap<B>
-		{
-			public BMap()
-			{
-				Map( m => m.Id );
-				References<CMap>( m => m.C ).Prefix();
-			}
-		}
+        private sealed class AMap : CsvClassMap<A>
+        {
+            public AMap()
+            {
+                Map(m => m.Id);
+                References<BMap>(m => m.B).Prefix("BPrefix_");
+            }
+        }
 
-		private sealed class CMap : CsvClassMap<C>
-		{
-			public CMap()
-			{
-				Map( m => m.Id ).Name( "CId" );
-			}
-		}
-	}
+        private sealed class BMap : CsvClassMap<B>
+        {
+            public BMap()
+            {
+                Map(m => m.Id);
+                References<CMap>(m => m.C).Prefix();
+            }
+        }
+
+        private sealed class CMap : CsvClassMap<C>
+        {
+            public CMap()
+            {
+                Map(m => m.Id).Name("CId");
+            }
+        }
+    }
 }

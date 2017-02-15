@@ -1,60 +1,57 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CsvHelper.Configuration;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace CsvHelper.Tests.Writing
+﻿namespace CsvHelper.Tests.Writing
 {
-	[TestClass]
-	public class ConstantTests
-	{
-		[TestMethod]
-		public void SameValueIsWrittenForEveryRecordTest()
-		{
-			using( var stream = new MemoryStream() )
-			using( var reader = new StreamReader( stream ) )
-			using( var writer = new StreamWriter( stream ) )
-			using( var csv = new CsvWriter( writer ) )
-			{
-				var records = new List<Test>
-				{
-					new Test { Id = 1, Name = "one" },
-					new Test { Id = 2, Name = "two" }
-				};
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Text;
+    using CsvHelper.Configuration;
+    using Xunit;
 
-				csv.Configuration.RegisterClassMap<TestMap>();
-				csv.WriteRecords( records );
-				writer.Flush();
-				stream.Position = 0;
+    public class ConstantTests
+    {
+        [Fact]
+        public void SameValueIsWrittenForEveryRecordTest()
+        {
+            using (var stream = new MemoryStream())
+            using (var reader = new StreamReader(stream))
+            using (var writer = new StreamWriter(stream))
+            using (var csv = new CsvWriter(writer))
+            {
+                var records = new List<Test>
+                {
+                    new Test { Id = 1, Name = "one" },
+                    new Test { Id = 2, Name = "two" }
+                };
 
-				var expected = new StringBuilder();
-				expected.AppendLine( "Id,Name" );
-				expected.AppendLine( "1,constant" );
-				expected.AppendLine( "2,constant" );
+                csv.Configuration.RegisterClassMap<TestMap>();
+                csv.WriteRecords(records);
+                writer.Flush();
+                stream.Position = 0;
 
-				var result = reader.ReadToEnd();
+                var expected = new StringBuilder();
+                expected.AppendLine("Id,Name");
+                expected.AppendLine("1,constant");
+                expected.AppendLine("2,constant");
 
-				Assert.AreEqual( expected.ToString(), result );
-			}
-		}
+                var result = reader.ReadToEnd();
 
-		private class Test
-		{
-			public int Id { get; set; }
-			public string Name { get; set; }
-		}
+                Assert.Equal(expected.ToString(), result);
+            }
+        }
 
-		private sealed class TestMap : CsvClassMap<Test>
-		{
-			public TestMap()
-			{
-				Map( m => m.Id );
-				Map( m => m.Name ).Constant( "constant" );
-			}
-		}
-	}
+        private class Test
+        {
+            public int Id { get; set; }
+
+            public string Name { get; set; }
+        }
+
+        private sealed class TestMap : CsvClassMap<Test>
+        {
+            public TestMap()
+            {
+                Map(m => m.Id);
+                Map(m => m.Name).Constant("constant");
+            }
+        }
+    }
 }

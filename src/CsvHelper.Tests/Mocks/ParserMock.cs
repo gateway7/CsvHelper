@@ -3,62 +3,66 @@
 // See LICENSE.txt for details or visit http://www.opensource.org/licenses/ms-pl.html for MS-PL and http://opensource.org/licenses/Apache-2.0 for Apache 2.0.
 // http://csvhelper.com
 
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using CsvHelper.Configuration;
-
 namespace CsvHelper.Tests.Mocks
 {
-	public class ParserMock : ICsvParser, IEnumerable<string[]>
-	{
-		private readonly Queue<string[]> rows;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.IO;
+    using CsvHelper.Configuration;
 
-		public void Dispose()
-		{
-		}
+    public class ParserMock : ICsvParser, IEnumerable<string[]>
+    {
+        private readonly Queue<string[]> rows;
 
-		public TextReader TextReader { get; }
-		public ICsvParserConfiguration Configuration { get; private set; }
-		public int FieldCount { get; private set; }
-		public long CharPosition { get; private set; }
-		public long BytePosition { get; private set; }
-		public int Row { get; private set; }
-		public int RawRow { get; private set; }
-		public string RawRecord { get; private set; }
+        public void Dispose() {}
 
-		public ParserMock()
-		{
-			Configuration = new CsvConfiguration();
-			rows = new Queue<string[]>();
-		}
+        public TextReader TextReader { get; }
 
-		public ParserMock( Queue<string[]> rows )
-		{
-			Configuration = new CsvConfiguration();
-			this.rows = rows;
-		}
+        public ICsvParserConfiguration Configuration { get; }
 
-		public string[] Read()
-		{
-		    Row++;
-			return rows.Dequeue();
-		}
+        public int FieldCount { get; private set; }
 
-		public void Add( params string[] row )
-		{
-			rows.Enqueue( row );
-		}
+        public long CharPosition { get; private set; }
 
-		public IEnumerator<string[]> GetEnumerator()
-		{
-			return rows.GetEnumerator();
-		}
+        public long BytePosition { get; private set; }
 
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
-	}
+        public int Row { get; private set; }
+
+        public int RawRow { get; private set; }
+
+        public string RawRecord { get; private set; }
+
+        public ParserMock()
+        {
+            Configuration = new CsvConfiguration();
+            rows = new Queue<string[]>();
+        }
+
+        public ParserMock(Queue<string[]> rows)
+        {
+            Configuration = new CsvConfiguration();
+            this.rows = rows;
+        }
+
+        public string[] Read()
+        {
+            Row++;
+            return rows.Dequeue();
+        }
+
+        public void Add(params string[] row)
+        {
+            rows.Enqueue(row);
+        }
+
+        public IEnumerator<string[]> GetEnumerator()
+        {
+            return rows.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
 }

@@ -1,147 +1,118 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using CsvHelper.Tests.Mocks;
+﻿
 #if WINRT_4_5
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #else
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 #endif
 
 namespace CsvHelper.Tests.Reading
 {
-	[TestClass]
-	public class ReadHeaderTests
-	{
-		[TestMethod]
-		public void ReadHeaderReadsHeaderTest()
-		{
-			var rows = new Queue<string[]>();
-			rows.Enqueue( new[] { "Id", "Name" } );
-			rows.Enqueue( new[] { "1", "One" } );
-			rows.Enqueue( new[] { "2", "two" } );
-			rows.Enqueue( null );
-			var parser = new ParserMock( rows );
+    using System.Collections.Generic;
+    using Mocks;
+    using Xunit;
 
-			var csv = new CsvReader( parser );
-			csv.Read();
-			csv.ReadHeader();
+    public class ReadHeaderTests
+    {
+        [Fact]
+        public void ReadHeaderReadsHeaderTest()
+        {
+            var rows = new Queue<string[]>();
+            rows.Enqueue(new[] { "Id", "Name" });
+            rows.Enqueue(new[] { "1", "One" });
+            rows.Enqueue(new[] { "2", "two" });
+            rows.Enqueue(null);
+            var parser = new ParserMock(rows);
 
-			Assert.IsNotNull( csv.FieldHeaders );
-			Assert.AreEqual( "Id", csv.FieldHeaders[0] );
-			Assert.AreEqual( "Name", csv.FieldHeaders[1] );
-		}
+            var csv = new CsvReader(parser);
+            csv.Read();
+            csv.ReadHeader();
 
-		[TestMethod]
-		public void ReadHeaderDoesNotReadRowTest()
-		{
-			var rows = new Queue<string[]>();
-			rows.Enqueue( new[] { "Id", "Name" } );
-			rows.Enqueue( new[] { "1", "One" } );
-			rows.Enqueue( new[] { "2", "two" } );
-			rows.Enqueue( null );
-			var parser = new ParserMock( rows );
+            Assert.NotNull(csv.FieldHeaders);
+            Assert.Equal("Id", csv.FieldHeaders[0]);
+            Assert.Equal("Name", csv.FieldHeaders[1]);
+        }
 
-			var csv = new CsvReader( parser );
-			csv.Read();
-			csv.ReadHeader();
+        [Fact]
+        public void ReadHeaderDoesNotReadRowTest()
+        {
+            var rows = new Queue<string[]>();
+            rows.Enqueue(new[] { "Id", "Name" });
+            rows.Enqueue(new[] { "1", "One" });
+            rows.Enqueue(new[] { "2", "two" });
+            rows.Enqueue(null);
+            var parser = new ParserMock(rows);
 
-			Assert.IsNull( csv.CurrentRecord );
-		}
+            var csv = new CsvReader(parser);
+            csv.Read();
+            csv.ReadHeader();
 
-		[TestMethod]
-		public void GettingFieldHeadersFailsWhenHeaderNotReadTest()
-		{
-			var rows = new Queue<string[]>();
-			rows.Enqueue( new[] { "Id", "Name" } );
-			rows.Enqueue( new[] { "1", "One" } );
-			rows.Enqueue( new[] { "2", "two" } );
-			rows.Enqueue( null );
-			var parser = new ParserMock( rows );
+            Assert.Null(csv.CurrentRecord);
+        }
 
-			var csv = new CsvReader( parser );
+        [Fact]
+        public void GettingFieldHeadersFailsWhenHeaderNotReadTest()
+        {
+            var rows = new Queue<string[]>();
+            rows.Enqueue(new[] { "Id", "Name" });
+            rows.Enqueue(new[] { "1", "One" });
+            rows.Enqueue(new[] { "2", "two" });
+            rows.Enqueue(null);
 
-			try
-			{
-				var x = csv.FieldHeaders;
-				Assert.Fail();
-			}
-			catch( CsvReaderException )
-			{
-			}
-		}
+            var parser = new ParserMock(rows);
+            var csv = new CsvReader(parser);
 
-		[TestMethod]
-		public void ReadingHeaderFailsWhenReaderIsDoneTest()
-		{
-			var rows = new Queue<string[]>();
-			rows.Enqueue( new[] { "Id", "Name" } );
-			rows.Enqueue( new[] { "1", "One" } );
-			rows.Enqueue( new[] { "2", "two" } );
-			rows.Enqueue( null );
-			var parser = new ParserMock( rows );
+            Assert.Throws<CsvReaderException>(() => csv.FieldHeaders);
+        }
 
-			var csv = new CsvReader( parser );
-			csv.Configuration.HasHeaderRecord = false;
-			while( csv.Read() ) { }
+        [Fact]
+        public void ReadingHeaderFailsWhenReaderIsDoneTest()
+        {
+            var rows = new Queue<string[]>();
+            rows.Enqueue(new[] { "Id", "Name" });
+            rows.Enqueue(new[] { "1", "One" });
+            rows.Enqueue(new[] { "2", "two" });
+            rows.Enqueue(null);
+            var parser = new ParserMock(rows);
 
-			try
-			{
-				csv.ReadHeader();
-				Assert.Fail();
-			}
-			catch( CsvReaderException )
-			{
-			}
-		}
+            var csv = new CsvReader(parser);
+            csv.Configuration.HasHeaderRecord = false;
 
-		[TestMethod]
-		public void ReadingHeaderFailsWhenNoHeaderRecordTest()
-		{
-			var rows = new Queue<string[]>();
-			rows.Enqueue( new[] { "Id", "Name" } );
-			rows.Enqueue( new[] { "1", "One" } );
-			rows.Enqueue( new[] { "2", "two" } );
-			rows.Enqueue( null );
-			var parser = new ParserMock( rows );
+            while (csv.Read()) {}
 
-			var csv = new CsvReader( parser );
-			csv.Configuration.HasHeaderRecord = false;
+            Assert.Throws<CsvReaderException>(() => csv.ReadHeader());
+        }
 
-			try
-			{
-				csv.ReadHeader();
-				Assert.Fail();
-			}
-			catch( CsvReaderException )
-			{
-			}
-		}
+        [Fact]
+        public void ReadingHeaderFailsWhenNoHeaderRecordTest()
+        {
+            var rows = new Queue<string[]>();
+            rows.Enqueue(new[] { "Id", "Name" });
+            rows.Enqueue(new[] { "1", "One" });
+            rows.Enqueue(new[] { "2", "two" });
+            rows.Enqueue(null);
+            var parser = new ParserMock(rows);
 
-		[TestMethod]
-		public void ReadingHeaderFailsWhenHeaderAlreadyReadTest()
-		{
-			var rows = new Queue<string[]>();
-			rows.Enqueue( new[] { "Id", "Name" } );
-			rows.Enqueue( new[] { "1", "One" } );
-			rows.Enqueue( new[] { "2", "two" } );
-			rows.Enqueue( null );
-			var parser = new ParserMock( rows );
+            var csv = new CsvReader(parser);
+            csv.Configuration.HasHeaderRecord = false;
 
-			var csv = new CsvReader( parser );
-			csv.Read();
-			csv.ReadHeader();
+            Assert.Throws<CsvReaderException>(() => csv.ReadHeader());
+        }
 
-			try
-			{
-				csv.ReadHeader();
-				Assert.Fail();
-			}
-			catch( CsvReaderException )
-			{
-			}
-		}
-	}
+        [Fact]
+        public void ReadingHeaderFailsWhenHeaderAlreadyReadTest()
+        {
+            var rows = new Queue<string[]>();
+            rows.Enqueue(new[] { "Id", "Name" });
+            rows.Enqueue(new[] { "1", "One" });
+            rows.Enqueue(new[] { "2", "two" });
+            rows.Enqueue(null);
+            var parser = new ParserMock(rows);
+
+            var csv = new CsvReader(parser);
+            csv.Read();
+            csv.ReadHeader();
+
+            Assert.Throws<CsvReaderException>(() => csv.ReadHeader());
+        }
+    }
 }

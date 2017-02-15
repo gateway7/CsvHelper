@@ -2,80 +2,70 @@
 // This file is a part of CsvHelper and is dual licensed under MS-PL and Apache 2.0.
 // See LICENSE.txt for details or visit http://www.opensource.org/licenses/ms-pl.html for MS-PL and http://opensource.org/licenses/Apache-2.0 for Apache 2.0.
 // http://csvhelper.com
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.IO;
-using System.Text;
-using System.Threading;
-using CsvHelper.Configuration;
-using CsvHelper.TypeConversion;
-using Int32Converter = CsvHelper.TypeConversion.Int32Converter;
-#if !PCL
-using System.Dynamic;
-#endif
-#if WINRT_4_5
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
 
 namespace CsvHelper.Tests
 {
-    [TestClass]
+    using System;
+    using System.Collections.Generic;
+    using System.Dynamic;
+    using System.Globalization;
+    using System.IO;
+    using System.Text;
+    using CsvHelper.Configuration;
+    using CsvHelper.TypeConversion;
+    using Xunit;
+
     public class CsvWriterTests
     {
-        [TestInitialize]
-        public void TestInitialize()
+        public CsvWriterTests()
         {
-            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
         }
 
-	    [TestMethod]
-	    public void WriteFieldTest()
-	    {
-		    var stream = new MemoryStream();
-		    var writer = new StreamWriter( stream ) { AutoFlush = true };
+        [Fact]
+        public void WriteFieldTest()
+        {
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream) { AutoFlush = true };
 
-		    var csv = new CsvWriter( writer );
+            var csv = new CsvWriter(writer);
 
-		    var date = DateTime.Now.ToString();
-		    var guid = Guid.NewGuid().ToString();
-		    csv.WriteField( "one" );
-		    csv.WriteField( "one, two" );
-		    csv.WriteField( "one \"two\" three" );
-		    csv.WriteField( " one " );
-		    csv.WriteField( date );
-		    csv.WriteField( (short)1 );
-		    csv.WriteField( 2 );
-		    csv.WriteField( (long)3 );
-		    csv.WriteField( (float)4 );
-		    csv.WriteField( (double)5 );
-		    csv.WriteField( guid );
-		    csv.NextRecord();
+            var date = DateTime.Now.ToString();
+            var guid = Guid.NewGuid().ToString();
+            csv.WriteField("one");
+            csv.WriteField("one, two");
+            csv.WriteField("one \"two\" three");
+            csv.WriteField(" one ");
+            csv.WriteField(date);
+            csv.WriteField((short)1);
+            csv.WriteField(2);
+            csv.WriteField((long)3);
+            csv.WriteField((float)4);
+            csv.WriteField((double)5);
+            csv.WriteField(guid);
+            csv.NextRecord();
 
-		    var reader = new StreamReader( stream );
-		    stream.Position = 0;
-		    var data = reader.ReadToEnd();
+            var reader = new StreamReader(stream);
+            stream.Position = 0;
+            var data = reader.ReadToEnd();
 
-		    Assert.AreEqual( "one,\"one, two\",\"one \"\"two\"\" three\",\" one \"," + date + ",1,2,3,4,5," + guid + "\r\n", data );
-	    }
+            Assert.Equal("one,\"one, two\",\"one \"\"two\"\" three\",\" one \"," + date + ",1,2,3,4,5," + guid + "\r\n", data);
+        }
 
-	    [TestMethod]
-	    public void WriteEmptyFieldWithExcelLeadingZerosTest()
-	    {
-			using( var stream = new MemoryStream() )
-			using( var writer = new StreamWriter( stream ) )
-			using( var reader = new StreamReader( stream ) )
-			using( var csv = new CsvWriter( writer ) )
-			{
-				csv.Configuration.UseExcelLeadingZerosFormatForNumerics = true;
-				csv.WriteField( string.Empty );
-			}
-	    }
+        [Fact]
+        public void WriteEmptyFieldWithExcelLeadingZerosTest()
+        {
+            using (var stream = new MemoryStream())
+            using (var writer = new StreamWriter(stream))
+            using (var reader = new StreamReader(stream))
+            using (var csv = new CsvWriter(writer))
+            {
+                csv.Configuration.UseExcelLeadingZerosFormatForNumerics = true;
+                csv.WriteField(string.Empty);
+            }
+        }
 
-        [TestMethod]
+        [Fact]
         public void WriteRecordTest()
         {
             var record = new TestRecord
@@ -83,7 +73,7 @@ namespace CsvHelper.Tests
                 IntColumn = 1,
                 StringColumn = "string column",
                 IgnoredColumn = "ignored column",
-                FirstColumn = "first column",
+                FirstColumn = "first column"
             };
 
             var stream = new MemoryStream();
@@ -99,10 +89,10 @@ namespace CsvHelper.Tests
             var csvFile = reader.ReadToEnd();
             var expected = "first column,1,string column,test\r\n";
 
-            Assert.AreEqual(expected, csvFile);
+            Assert.Equal(expected, csvFile);
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteRecordNoIndexesTest()
         {
             var record = new TestRecordNoIndexes
@@ -110,7 +100,7 @@ namespace CsvHelper.Tests
                 IntColumn = 1,
                 StringColumn = "string column",
                 IgnoredColumn = "ignored column",
-                FirstColumn = "first column",
+                FirstColumn = "first column"
             };
 
             using (var stream = new MemoryStream())
@@ -128,11 +118,11 @@ namespace CsvHelper.Tests
 
                 var expected = "1,string column,first column,test\r\n";
 
-                Assert.AreEqual(expected, csvFile);
+                Assert.Equal(expected, csvFile);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteRecordsTest()
         {
             var records = new List<TestRecord>
@@ -142,15 +132,15 @@ namespace CsvHelper.Tests
                     IntColumn = 1,
                     StringColumn = "string column",
                     IgnoredColumn = "ignored column",
-                    FirstColumn = "first column",
+                    FirstColumn = "first column"
                 },
                 new TestRecord
                 {
                     IntColumn = 2,
                     StringColumn = "string column 2",
                     IgnoredColumn = "ignored column 2",
-                    FirstColumn = "first column 2",
-                },
+                    FirstColumn = "first column 2"
+                }
             };
 
             var stream = new MemoryStream();
@@ -167,10 +157,10 @@ namespace CsvHelper.Tests
             expected += "first column,1,string column,test\r\n";
             expected += "first column 2,2,string column 2,test\r\n";
 
-            Assert.AreEqual(expected, csvFile);
+            Assert.Equal(expected, csvFile);
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteEmptyArrayTest()
         {
             var records = new TestRecord[] { };
@@ -187,29 +177,29 @@ namespace CsvHelper.Tests
             var csvFile = reader.ReadToEnd();
             var expected = "FirstColumn,Int Column,StringColumn,TypeConvertedColumn\r\n";
 
-            Assert.AreEqual(expected, csvFile);
+            Assert.Equal(expected, csvFile);
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteRecordsCalledWithTwoParametersTest()
         {
             var records = new List<object>
-			{
-				new TestRecord
-				{
-					IntColumn = 1,
-					StringColumn = "string column",
-					IgnoredColumn = "ignored column",
-					FirstColumn = "first column",
-				},
-				new TestRecord
-				{
-					IntColumn = 2,
-					StringColumn = "string column 2",
-					IgnoredColumn = "ignored column 2",
-					FirstColumn = "first column 2",
-				},
-			};
+            {
+                new TestRecord
+                {
+                    IntColumn = 1,
+                    StringColumn = "string column",
+                    IgnoredColumn = "ignored column",
+                    FirstColumn = "first column"
+                },
+                new TestRecord
+                {
+                    IntColumn = 2,
+                    StringColumn = "string column 2",
+                    IgnoredColumn = "ignored column 2",
+                    FirstColumn = "first column 2"
+                }
+            };
 
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream) { AutoFlush = true };
@@ -225,10 +215,10 @@ namespace CsvHelper.Tests
             expected += "first column,1,string column,test\r\n";
             expected += "first column 2,2,string column 2,test\r\n";
 
-            Assert.AreEqual(expected, csvFile);
+            Assert.Equal(expected, csvFile);
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteRecordNoHeaderTest()
         {
             var stream = new MemoryStream();
@@ -242,10 +232,10 @@ namespace CsvHelper.Tests
             var reader = new StreamReader(stream);
             var csvFile = reader.ReadToEnd();
 
-            Assert.AreEqual(",0,,test\r\n", csvFile);
+            Assert.Equal(",0,,test\r\n", csvFile);
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteRecordWithNullRecordTest()
         {
             var record = new TestRecord
@@ -253,7 +243,7 @@ namespace CsvHelper.Tests
                 IntColumn = 1,
                 StringColumn = "string column",
                 IgnoredColumn = "ignored column",
-                FirstColumn = "first column",
+                FirstColumn = "first column"
             };
 
             var stream = new MemoryStream();
@@ -275,10 +265,10 @@ namespace CsvHelper.Tests
             expected += ",,,\r\n";
             expected += "first column,1,string column,test\r\n";
 
-            Assert.AreEqual(expected, csvFile);
+            Assert.Equal(expected, csvFile);
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteRecordWithReferencesTest()
         {
             var record = new Person
@@ -290,14 +280,14 @@ namespace CsvHelper.Tests
                     Street = "Home Street",
                     City = "Home City",
                     State = "Home State",
-                    Zip = "Home Zip",
+                    Zip = "Home Zip"
                 },
                 WorkAddress = new Address
                 {
                     Street = "Work Street",
                     City = "Work City",
                     State = "Work State",
-                    Zip = "Work Zip",
+                    Zip = "Work Zip"
                 }
             };
 
@@ -315,10 +305,10 @@ namespace CsvHelper.Tests
 
             var expected = "First Name,Last Name,Home Street,Home City,Home State,Home Zip,Work Street,Work City,Work State,Work Zip\r\n";
 
-            Assert.AreEqual(expected, csvFile);
+            Assert.Equal(expected, csvFile);
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteRecordsAllFieldsQuotedTest()
         {
             var record = new TestRecord
@@ -326,7 +316,7 @@ namespace CsvHelper.Tests
                 IntColumn = 1,
                 StringColumn = "string column",
                 IgnoredColumn = "ignored column",
-                FirstColumn = "first column",
+                FirstColumn = "first column"
             };
 
             string csv;
@@ -348,10 +338,10 @@ namespace CsvHelper.Tests
 
             var expected = "\"first column\",\"1\",\"string column\",\"test\"\r\n";
 
-            Assert.AreEqual(expected, csv);
+            Assert.Equal(expected, csv);
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteRecordsNoFieldsQuotedTest()
         {
             var record = new TestRecord
@@ -359,7 +349,7 @@ namespace CsvHelper.Tests
                 IntColumn = 1,
                 StringColumn = "string \" column",
                 IgnoredColumn = "ignored column",
-                FirstColumn = "first, column",
+                FirstColumn = "first, column"
             };
 
             string csv;
@@ -381,10 +371,10 @@ namespace CsvHelper.Tests
 
             var expected = "first, column,1,string \" column,test\r\n";
 
-            Assert.AreEqual(expected, csv);
+            Assert.Equal(expected, csv);
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteHeaderTest()
         {
             string csv;
@@ -404,11 +394,12 @@ namespace CsvHelper.Tests
                 csv = reader.ReadToEnd();
             }
 
-            const string Expected = "FirstColumn,Int Column,StringColumn,TypeConvertedColumn\r\n";
-            Assert.AreEqual(Expected, csv);
+            const string expected = "FirstColumn,Int Column,StringColumn,TypeConvertedColumn\r\n";
+
+            Assert.Equal(expected, csv);
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteHeaderFailsIfHasHeaderRecordIsNotConfiguredTest()
         {
             using (var stream = new MemoryStream())
@@ -417,18 +408,12 @@ namespace CsvHelper.Tests
             {
                 csvWriter.Configuration.HasHeaderRecord = false;
                 csvWriter.Configuration.RegisterClassMap<TestRecordMap>();
-                try
-                {
-                    csvWriter.WriteHeader(typeof(TestRecord));
-                    Assert.Fail();
-                }
-                catch (CsvWriterException)
-                {
-                }
+
+                Assert.Throws<CsvWriterException>(() => csvWriter.WriteHeader(typeof(TestRecord)));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteRecordWithDelimiterInFieldTest()
         {
             using (var stream = new MemoryStream())
@@ -447,11 +432,11 @@ namespace CsvHelper.Tests
 
                 var text = reader.ReadToEnd();
 
-                Assert.AreEqual("\"one,two\"\r\n", text);
+                Assert.Equal("\"one,two\"\r\n", text);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteRecordWithQuoteInFieldTest()
         {
             using (var stream = new MemoryStream())
@@ -470,11 +455,11 @@ namespace CsvHelper.Tests
 
                 var text = reader.ReadToEnd();
 
-                Assert.AreEqual("\"one\"\"two\"\r\n", text);
+                Assert.Equal("\"one\"\"two\"\r\n", text);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteRecordWithQuoteAllFieldsOnAndDelimiterInFieldTest()
         {
             using (var stream = new MemoryStream())
@@ -494,11 +479,11 @@ namespace CsvHelper.Tests
 
                 var text = reader.ReadToEnd();
 
-                Assert.AreEqual("\"one,two\"\r\n", text);
+                Assert.Equal("\"one,two\"\r\n", text);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteRecordWithQuoteAllFieldsOnAndQuoteInFieldTest()
         {
             using (var stream = new MemoryStream())
@@ -518,11 +503,11 @@ namespace CsvHelper.Tests
 
                 var text = reader.ReadToEnd();
 
-                Assert.AreEqual("\"one\"\"two\"\r\n", text);
+                Assert.Equal("\"one\"\"two\"\r\n", text);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteRecordsWithInvariantCultureTest()
         {
             using (var stream = new MemoryStream())
@@ -538,7 +523,7 @@ namespace CsvHelper.Tests
                     IntColumn = 1,
                     FirstColumn = "first column",
                     IgnoredColumn = "ignored column",
-                    StringColumn = "string column",
+                    StringColumn = "string column"
                 };
 
                 csv.WriteRecord(record);
@@ -549,7 +534,7 @@ namespace CsvHelper.Tests
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteNoGetterTest()
         {
             using (var stream = new MemoryStream())
@@ -558,13 +543,13 @@ namespace CsvHelper.Tests
             using (var csv = new CsvWriter(writer))
             {
                 var list = new List<TestPrivateGet>
-				{
-					new TestPrivateGet
-					{
-						Id = 1,
-						Name = "one"
-					}
-				};
+                {
+                    new TestPrivateGet
+                    {
+                        Id = 1,
+                        Name = "one"
+                    }
+                };
                 csv.WriteRecords(list);
                 writer.Flush();
                 stream.Position = 0;
@@ -574,11 +559,11 @@ namespace CsvHelper.Tests
                 expected.AppendLine("Id");
                 expected.AppendLine("1");
 
-                Assert.AreEqual(expected.ToString(), data);
+                Assert.Equal(expected.ToString(), data);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteDynamicTest()
         {
             using (var stream = new MemoryStream())
@@ -592,11 +577,11 @@ namespace CsvHelper.Tests
                 stream.Position = 0;
 
                 var text = reader.ReadToEnd();
-                Assert.AreEqual("1,one\r\n", text);
+                Assert.Equal("1,one\r\n", text);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WritePrimitivesRecordsHasHeaderTrueTest()
         {
             using (var stream = new MemoryStream())
@@ -612,11 +597,11 @@ namespace CsvHelper.Tests
 
                 var text = reader.ReadToEnd();
 
-                Assert.AreEqual("1\r\n2\r\n3\r\n", text);
+                Assert.Equal("1\r\n2\r\n3\r\n", text);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WritePrimitivesRecordsHasHeaderFalseTest()
         {
             using (var stream = new MemoryStream())
@@ -632,11 +617,11 @@ namespace CsvHelper.Tests
 
                 var text = reader.ReadToEnd();
 
-                Assert.AreEqual("1\r\n2\r\n3\r\n", text);
+                Assert.Equal("1\r\n2\r\n3\r\n", text);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteStructRecordsTest()
         {
             using (var stream = new MemoryStream())
@@ -645,34 +630,34 @@ namespace CsvHelper.Tests
             using (var csv = new CsvWriter(writer))
             {
                 var list = new List<TestStruct>
-				{
-					new TestStruct { Id = 1, Name = "one" },
-					new TestStruct { Id = 2, Name = "two" },
-				};
+                {
+                    new TestStruct { Id = 1, Name = "one" },
+                    new TestStruct { Id = 2, Name = "two" }
+                };
                 csv.WriteRecords(list);
                 writer.Flush();
                 stream.Position = 0;
 
                 var text = reader.ReadToEnd();
 
-                Assert.AreEqual("Id,Name\r\n1,one\r\n2,two\r\n", text);
+                Assert.Equal("Id,Name\r\n1,one\r\n2,two\r\n", text);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteStructReferenceRecordsTest()
         {
             var list = new List<TestStructParent>
-			{
-				new TestStructParent
-				{
-					Test = new TestStruct
-					{
-						Id = 1,
-						Name = "one",
-					},
-				},
-			};
+            {
+                new TestStructParent
+                {
+                    Test = new TestStruct
+                    {
+                        Id = 1,
+                        Name = "one"
+                    }
+                }
+            };
 
             using (var stream = new MemoryStream())
             using (var reader = new StreamReader(stream))
@@ -685,35 +670,35 @@ namespace CsvHelper.Tests
                 stream.Position = 0;
 
                 var data = reader.ReadToEnd();
-                Assert.AreEqual("Id,Name\r\n1,one\r\n", data);
+                Assert.Equal("Id,Name\r\n1,one\r\n", data);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteNestedHeadersTest()
         {
             var list = new List<Person>
-			{
-				new Person
-				{
-					FirstName = "first",
-					LastName = "last",
-					HomeAddress = new Address
-					{
-						City = "home city",
-						State = "home state",
-						Street = "home street",
-						Zip = "home zip",
-					},
-					WorkAddress = new Address
-					{
-						City = "work city",
-						State = "work state",
-						Street = "work street",
-						Zip = "work zip",
-					},
-				},
-			};
+            {
+                new Person
+                {
+                    FirstName = "first",
+                    LastName = "last",
+                    HomeAddress = new Address
+                    {
+                        City = "home city",
+                        State = "home state",
+                        Street = "home street",
+                        Zip = "home zip"
+                    },
+                    WorkAddress = new Address
+                    {
+                        City = "work city",
+                        State = "work state",
+                        Street = "work street",
+                        Zip = "work zip"
+                    }
+                }
+            };
 
             using (var stream = new MemoryStream())
             using (var reader = new StreamReader(stream))
@@ -729,11 +714,11 @@ namespace CsvHelper.Tests
                 var expected = new StringBuilder();
                 expected.AppendLine("FirstName,LastName,HomeAddress.Street,HomeAddress.City,HomeAddress.State,HomeAddress.Zip,WorkAddress.Street,WorkAddress.City,WorkAddress.State,WorkAddress.Zip");
                 expected.AppendLine("first,last,home street,home city,home state,home zip,work street,work city,work state,work zip");
-                Assert.AreEqual(expected.ToString(), text);
+                Assert.Equal(expected.ToString(), text);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteEmptyListTest()
         {
             using (var stream = new MemoryStream())
@@ -747,114 +732,111 @@ namespace CsvHelper.Tests
                 stream.Position = 0;
 
                 var data = reader.ReadToEnd();
-                Assert.IsFalse(string.IsNullOrWhiteSpace(data));
+                Assert.False(string.IsNullOrWhiteSpace(data));
             }
         }
 
-		[TestMethod]
-	    public void ClassWithStaticAutoMappingTest()
-	    {
-			using( var stream = new MemoryStream() )
-			using( var reader = new StreamReader( stream ) )
-			using( var writer = new StreamWriter( stream ) )
-			using( var csv = new CsvWriter( writer ) )
-			{
-				TestWithStatic.Name = "one";
-				var records = new List<TestWithStatic>
-				{
-					new TestWithStatic
-					{
-						Id = 1
-					},
-				};
+        [Fact]
+        public void ClassWithStaticAutoMappingTest()
+        {
+            using (var stream = new MemoryStream())
+            using (var reader = new StreamReader(stream))
+            using (var writer = new StreamWriter(stream))
+            using (var csv = new CsvWriter(writer))
+            {
+                TestWithStatic.Name = "one";
+                var records = new List<TestWithStatic>
+                {
+                    new TestWithStatic
+                    {
+                        Id = 1
+                    }
+                };
 
-				csv.WriteRecords( records );
-			}
-	    }
+                csv.WriteRecords(records);
+            }
+        }
 
-		[TestMethod]
-		public void ClassWithStaticUsingMappingTest()
-		{
-			using( var stream = new MemoryStream() )
-			using( var reader = new StreamReader( stream ) )
-			using( var writer = new StreamWriter( stream ) )
-			using( var csv = new CsvWriter( writer ) )
-			{
-				csv.Configuration.RegisterClassMap<TestWithStaticMap>();
+        [Fact]
+        public void ClassWithStaticUsingMappingTest()
+        {
+            using (var stream = new MemoryStream())
+            using (var reader = new StreamReader(stream))
+            using (var writer = new StreamWriter(stream))
+            using (var csv = new CsvWriter(writer))
+            {
+                csv.Configuration.RegisterClassMap<TestWithStaticMap>();
 
-				TestWithStatic.Name = "one";
-				var records = new List<TestWithStatic>
-				{
-					new TestWithStatic
-					{
-						Id = 1
-					},
-				};
+                TestWithStatic.Name = "one";
+                var records = new List<TestWithStatic>
+                {
+                    new TestWithStatic
+                    {
+                        Id = 1
+                    }
+                };
 
-				csv.WriteRecords( records );
-			}
-		}
+                csv.WriteRecords(records);
+            }
+        }
 
-#if !PCL
-		[TestMethod]
-		public void WriteDynamicListTest()
-		{
-			using( var stream = new MemoryStream() )
-			using( var reader = new StreamReader( stream ) )
-			using( var writer = new StreamWriter( stream ) )
-			using( var csv = new CsvWriter( writer ) )
-			{
-				var list = new List<dynamic>();
-				dynamic record = new { Id = 1, Name = "one" };
-				list.Add( record );
-				csv.WriteRecords( list );
-				writer.Flush();
-				stream.Position = 0;
+        [Fact]
+        public void WriteDynamicListTest()
+        {
+            using (var stream = new MemoryStream())
+            using (var reader = new StreamReader(stream))
+            using (var writer = new StreamWriter(stream))
+            using (var csv = new CsvWriter(writer))
+            {
+                var list = new List<dynamic>();
+                dynamic record = new { Id = 1, Name = "one" };
+                list.Add(record);
+                csv.WriteRecords(list);
+                writer.Flush();
+                stream.Position = 0;
 
-				var text = reader.ReadToEnd();
-				Assert.AreEqual( "Id,Name\r\n1,one\r\n", text );
-			}
-		}
+                var text = reader.ReadToEnd();
+                Assert.Equal("Id,Name\r\n1,one\r\n", text);
+            }
+        }
 
-		// TODO: Make reader/writer work with expando objects.
-		[Ignore]
-		[TestMethod]
-		public void WriteExpandoListTest()
-		{
-			using( var stream = new MemoryStream() )
-			using( var reader = new StreamReader( stream ) )
-			using( var writer = new StreamWriter( stream ) )
-			using( var csv = new CsvWriter( writer ) )
-			{
-				var list = new List<dynamic>();
-				dynamic record = new ExpandoObject();
-				record.Id = 1;
-				record.Name = "one";
-				list.Add( record );
-				csv.WriteRecords( list );
-				writer.Flush();
-				stream.Position = 0;
+        // TODO: Make reader/writer work with expando objects.
+        [Fact]
+        public void WriteExpandoListTest()
+        {
+            using (var stream = new MemoryStream())
+            using (var reader = new StreamReader(stream))
+            using (var writer = new StreamWriter(stream))
+            using (var csv = new CsvWriter(writer))
+            {
+                var list = new List<dynamic>();
+                dynamic record = new ExpandoObject();
+                record.Id = 1;
+                record.Name = "one";
+                list.Add(record);
+                csv.WriteRecords(list);
+                writer.Flush();
+                stream.Position = 0;
 
-				var text = reader.ReadToEnd();
-				Assert.AreEqual( "Id,Name\r\n1,one\r\n", text );
-			}
-		}
-#endif
+                var text = reader.ReadToEnd();
+                Assert.Equal("Id,Name\r\n1,one\r\n", text);
+            }
+        }
 
-	    private class TestWithStatic
-	    {
-			public int Id { get; set; }
+        private class TestWithStatic
+        {
+            public int Id { get; set; }
 
-			public static string Name { get; set; }
-	    }
+            public static string Name { get; set; }
+        }
 
-	    private sealed class TestWithStaticMap : CsvClassMap<TestWithStatic>
-	    {
-		    public TestWithStaticMap()
-		    {
-			    Map( m => m.Id );
-		    }
-	    }
+        private sealed class TestWithStaticMap : CsvClassMap<TestWithStatic>
+        {
+            public TestWithStaticMap()
+            {
+                Map(m => m.Id);
+            }
+        }
 
         private class TestStructParent
         {
@@ -947,12 +929,12 @@ namespace CsvHelper.Tests
 
         private class TestTypeConverter : ITypeConverter
         {
-			public string ConvertToString( object value, ICsvWriterRow row, CsvPropertyMapData propertyMapData )
-			{
+            public string ConvertToString(object value, ICsvWriterRow row, CsvPropertyMapData propertyMapData)
+            {
                 return "test";
             }
 
-	        public object ConvertFromString( string text, ICsvReaderRow row, CsvPropertyMapData propertyMapData )
+            public object ConvertFromString(string text, ICsvReaderRow row, CsvPropertyMapData propertyMapData)
             {
                 throw new NotImplementedException();
             }
@@ -1022,6 +1004,5 @@ namespace CsvHelper.Tests
                 Map(m => m.Zip).Name("WorkZip");
             }
         }
-
     }
 }

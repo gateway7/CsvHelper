@@ -1,119 +1,114 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CsvHelper.Configuration;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace CsvHelper.Tests.Mappings
+﻿namespace CsvHelper.Tests.Mappings
 {
-	[TestClass]
-	public class ConstructUsingTests
-	{
-		[TestMethod]
-		public void ConstructUsingNewTest()
-		{
-			using( var stream = new MemoryStream() )
-			using( var reader = new StreamReader( stream ) )
-			using( var writer = new StreamWriter( stream ) )
-			using( var csv = new CsvReader( reader ) )
-			{
-				writer.WriteLine( "1,2,3" );
-				writer.Flush();
-				stream.Position = 0;
+    using System.IO;
+    using System.Linq;
+    using CsvHelper.Configuration;
+    using Xunit;
 
-				csv.Configuration.HasHeaderRecord = false;
-				csv.Configuration.RegisterClassMap<ANewMap>();
-				var records = csv.GetRecords<A>().ToList();
-				var record = records[0];
+    public class ConstructUsingTests
+    {
+        [Fact]
+        public void ConstructUsingNewTest()
+        {
+            using (var stream = new MemoryStream())
+            using (var reader = new StreamReader(stream))
+            using (var writer = new StreamWriter(stream))
+            using (var csv = new CsvReader(reader))
+            {
+                writer.WriteLine("1,2,3");
+                writer.Flush();
+                stream.Position = 0;
 
-				Assert.AreEqual( "a name", record.Name );
-				Assert.AreEqual( "b name", record.B.Name );
-			}
-		}
+                csv.Configuration.HasHeaderRecord = false;
+                csv.Configuration.RegisterClassMap<ANewMap>();
+                var records = csv.GetRecords<A>().ToList();
+                var record = records[0];
 
-		[TestMethod]
-		public void ConstructUsingMemberInitTest()
-		{
-			using( var stream = new MemoryStream() )
-			using( var reader = new StreamReader( stream ) )
-			using( var writer = new StreamWriter( stream ) )
-			using( var csv = new CsvReader( reader ) )
-			{
-				writer.WriteLine( "1,2,3" );
-				writer.Flush();
-				stream.Position = 0;
+                Assert.Equal("a name", record.Name);
+                Assert.Equal("b name", record.B.Name);
+            }
+        }
 
-				csv.Configuration.HasHeaderRecord = false;
-				csv.Configuration.RegisterClassMap<AMemberInitMap>();
-				var records = csv.GetRecords<A>().ToList();
-				var record = records[0];
+        [Fact]
+        public void ConstructUsingMemberInitTest()
+        {
+            using (var stream = new MemoryStream())
+            using (var reader = new StreamReader(stream))
+            using (var writer = new StreamWriter(stream))
+            using (var csv = new CsvReader(reader))
+            {
+                writer.WriteLine("1,2,3");
+                writer.Flush();
+                stream.Position = 0;
 
-				Assert.AreEqual( "a name", record.Name );
-				Assert.AreEqual( "b name", record.B.Name );
-			}
-		}
+                csv.Configuration.HasHeaderRecord = false;
+                csv.Configuration.RegisterClassMap<AMemberInitMap>();
+                var records = csv.GetRecords<A>().ToList();
+                var record = records[0];
 
-		private class A
-		{
-			public string Name { get; set; }
+                Assert.Equal("a name", record.Name);
+                Assert.Equal("b name", record.B.Name);
+            }
+        }
 
-			public B B { get; set; }
+        public class B
+        {
+            public string Name { get; set; }
 
-			public A() { }
+            public B() {}
 
-			public A( string name )
-			{
-				Name = name;
-			}
-		}
+            public B(string name)
+            {
+                Name = name;
+            }
+        }
 
-		public class B
-		{
-			public string Name { get; set; }
+        private class A
+        {
+            public string Name { get; set; }
 
-			public B() { }
+            public B B { get; set; }
 
-			public B( string name )
-			{
-				Name = name;
-			}
-		}
+            public A() {}
 
-		private sealed class ANewMap : CsvClassMap<A>
-		{
-			public ANewMap()
-			{
-				ConstructUsing( () => new A( "a name" ) );
-				References<BNewMap>( m => m.B );
-			}
-		}
+            public A(string name)
+            {
+                Name = name;
+            }
+        }
 
-		private sealed class BNewMap : CsvClassMap<B>
-		{
-			public BNewMap()
-			{
-				ConstructUsing( () => new B( "b name" ) );
-			}
-		}
+        private sealed class ANewMap : CsvClassMap<A>
+        {
+            public ANewMap()
+            {
+                ConstructUsing(() => new A("a name"));
+                References<BNewMap>(m => m.B);
+            }
+        }
 
-		private sealed class AMemberInitMap : CsvClassMap<A>
-		{
-			public AMemberInitMap()
-			{
-				ConstructUsing( () => new A { Name = "a name" } );
-				References<BMemberInitMap>( m => m.B );
-			}
-		}
+        private sealed class BNewMap : CsvClassMap<B>
+        {
+            public BNewMap()
+            {
+                ConstructUsing(() => new B("b name"));
+            }
+        }
 
-		private sealed class BMemberInitMap : CsvClassMap<B>
-		{
-			public BMemberInitMap()
-			{
-				ConstructUsing( () => new B { Name = "b name" } );
-			}
-		}
-	}
+        private sealed class AMemberInitMap : CsvClassMap<A>
+        {
+            public AMemberInitMap()
+            {
+                ConstructUsing(() => new A { Name = "a name" });
+                References<BMemberInitMap>(m => m.B);
+            }
+        }
+
+        private sealed class BMemberInitMap : CsvClassMap<B>
+        {
+            public BMemberInitMap()
+            {
+                ConstructUsing(() => new B { Name = "b name" });
+            }
+        }
+    }
 }
