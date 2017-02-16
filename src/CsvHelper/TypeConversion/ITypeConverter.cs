@@ -29,5 +29,14 @@ namespace CsvHelper.TypeConversion
         /// <param name="propertyMapData">The <see cref="CsvPropertyMapData" /> for the property/field being created.</param>
         /// <returns>The object created from the string.</returns>
         object ConvertFromString(string text, ICsvReaderRow row, CsvPropertyMapData propertyMapData);
+
+        /// <summary>
+        /// Converts the string to an object.
+        /// </summary>
+        /// <param name="text">The string to convert to an object.</param>
+        /// <param name="row">The <see cref="ICsvReaderRow" /> for the current record.</param>
+        /// <param name="propertyMapData">The <see cref="CsvPropertyMapData" /> for the property/field being created.</param>
+        /// <returns>The object created from the string.</returns>
+        T ConvertFromString<T>(string text, ICsvReaderRow row, CsvPropertyMapData propertyMapData);
     }
 }

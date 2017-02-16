@@ -157,11 +157,6 @@
 
             var result = field.ToString();
 
-            if (Configuration.IgnoreNullFields && result.Trim().Equals("null", StringComparison.OrdinalIgnoreCase))
-            {
-                result = null;
-            }
-
             field.Clear();
 
             return result;

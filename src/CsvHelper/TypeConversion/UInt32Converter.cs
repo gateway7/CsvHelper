@@ -24,7 +24,10 @@ namespace CsvHelper.TypeConversion
         {
             var numberStyle = propertyMapData.TypeConverterOptions.NumberStyle ?? NumberStyles.Integer;
 
-            return uint.TryParse(text, numberStyle, propertyMapData.TypeConverterOptions.CultureInfo, out uint ui) ? ui : base.ConvertFromString(text, row, propertyMapData);
+            return
+                uint.TryParse(text, numberStyle, propertyMapData.TypeConverterOptions.CultureInfo, out uint result)
+                    ? result
+                    : base.ConvertFromString<uint>(text, row, propertyMapData);
         }
     }
 }

@@ -14,11 +14,11 @@ namespace CsvHelper.TypeConversion
     /// </summary>
     public class TypeConverterOptions
     {
-        private static readonly string[] defaultBooleanTrueValues = { "yes", "y" };
+        private static readonly string[] DefaultBooleanTrueValues = { "yes", "y" };
 
-        private static readonly string[] defaultBooleanFalseValues = { "no", "n" };
+        private static readonly string[] DefaultBooleanFalseValues = { "no", "n" };
 
-        private static readonly string[] defaultNullValues = { "null", "NULL" };
+        private static readonly string[] DefaultNullValues = { "null", "NULL" };
 
         /// <summary>
         /// Gets or sets the culture info.
@@ -30,14 +30,10 @@ namespace CsvHelper.TypeConversion
         /// </summary>
         public DateTimeStyles? DateTimeStyle { get; set; }
 
-#if !NET_2_0 && !NET_3_5 && !PCL
-
         /// <summary>
         /// Gets or sets the time span style.
         /// </summary>
         public TimeSpanStyles? TimeSpanStyle { get; set; }
-
-#endif
 
         /// <summary>
         /// Gets or sets the number style.
@@ -50,21 +46,33 @@ namespace CsvHelper.TypeConversion
         public string Format { get; set; }
 
         /// <summary>
+        /// Treat null string values as default for the field's type. 
+        /// </summary>
+        public bool TreatNullAsDefault { get; set; }
+
+        /// <summary>
         /// Gets the list of values that can be
         /// used to represent a boolean of true.
         /// </summary>
-        public List<string> BooleanTrueValues { get; } = new List<string>(defaultBooleanTrueValues);
+        public List<string> BooleanTrueValues { get; } = new List<string>(DefaultBooleanTrueValues);
 
         /// <summary>
         /// Gets the list of values that can be
         /// used to represent a boolean of false.
         /// </summary>
-        public List<string> BooleanFalseValues { get; } = new List<string>(defaultBooleanFalseValues);
+        public List<string> BooleanFalseValues { get; } = new List<string>(DefaultBooleanFalseValues);
 
         /// <summary>
         /// Gets the list of values that can be used to represent a null value.
         /// </summary>
-        public List<string> NullValues { get; } = new List<string>(defaultNullValues);
+        public List<string> NullValues { get; } = new List<string>(DefaultNullValues);
+
+        /// <summary>
+        /// Returns true if the specified value is considered null.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public bool IsNullValue(string value) => NullValues.Any(nullValue => value == nullValue);
 
         /// <summary>
         /// Merges TypeConverterOptions by applying the values of sources in order to a
@@ -93,14 +101,10 @@ namespace CsvHelper.TypeConversion
                     options.DateTimeStyle = source.DateTimeStyle;
                 }
 
-#if !NET_2_0 && !NET_3_5 && !PCL
-
                 if (source.TimeSpanStyle != null)
                 {
                     options.TimeSpanStyle = source.TimeSpanStyle;
                 }
-
-#endif
 
                 if (source.NumberStyle != null)
                 {
@@ -115,19 +119,19 @@ namespace CsvHelper.TypeConversion
                 // Only change the values if they are different than the defaults.
                 // This means there were explicit changes made to the options.
 
-                if (!defaultBooleanTrueValues.SequenceEqual(source.BooleanTrueValues))
+                if (!DefaultBooleanTrueValues.SequenceEqual(source.BooleanTrueValues))
                 {
                     options.BooleanTrueValues.Clear();
                     options.BooleanTrueValues.AddRange(source.BooleanTrueValues);
                 }
 
-                if (!defaultBooleanFalseValues.SequenceEqual(source.BooleanFalseValues))
+                if (!DefaultBooleanFalseValues.SequenceEqual(source.BooleanFalseValues))
                 {
                     options.BooleanFalseValues.Clear();
                     options.BooleanFalseValues.AddRange(source.BooleanFalseValues);
                 }
 
-                if (!defaultNullValues.SequenceEqual(source.NullValues))
+                if (!DefaultNullValues.SequenceEqual(source.NullValues))
                 {
                     options.NullValues.Clear();
                     options.NullValues.AddRange(source.NullValues);

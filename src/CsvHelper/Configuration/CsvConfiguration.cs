@@ -309,14 +309,6 @@ namespace CsvHelper.Configuration
         public bool UnescapeQuotes { get; set; }
 
         /// <summary>
-        /// Remove all forms (caps-wise) of "null" the field, effectively allowing type 
-        /// converters to interpret its value as default for the corresponding field type.
-        /// 
-        /// Defaults to [true].
-        /// </summary>
-        public bool IgnoreNullFields { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating if private
         /// properties/fields should be read from and written to.
         /// True to include private properties/fields, otherwise false. Default is false.
@@ -370,9 +362,6 @@ namespace CsvHelper.Configuration
         /// </summary>
         public CsvConfiguration()
         {
-            //UnescapeQuotes = true;
-            //IgnoreNullFields = true;
-
             BuildRequiredQuoteChars();
         }
 

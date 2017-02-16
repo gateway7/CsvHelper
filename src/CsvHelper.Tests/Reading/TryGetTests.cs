@@ -21,8 +21,7 @@
             var reader = new CsvReader(parserMock);
             reader.Read();
 
-            int field;
-            var got = reader.TryGetField(0, out field);
+            var got = reader.TryGetField(0, out int field);
             Assert.False(got);
             Assert.Equal(default(int), field);
         }

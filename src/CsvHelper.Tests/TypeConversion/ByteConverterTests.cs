@@ -39,8 +39,7 @@ namespace CsvHelper.Tests.TypeConversion
         {
             var converter = new ByteConverter();
 
-            var propertyMapData = new CsvPropertyMapData(null);
-            propertyMapData.TypeConverterOptions.CultureInfo = CultureInfo.CurrentCulture;
+            var propertyMapData = new CsvPropertyMapData(null) { TypeConverterOptions = { CultureInfo = CultureInfo.CurrentCulture } };
 
             Assert.Equal((byte)123, converter.ConvertFromString("123", null, propertyMapData));
             Assert.Equal((byte)123, converter.ConvertFromString(" 123 ", null, propertyMapData));

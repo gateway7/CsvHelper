@@ -6,6 +6,7 @@
 namespace CsvHelper.TypeConversion
 {
     using System;
+    using System.Linq;
     using Configuration;
 
     /// <summary>
@@ -63,20 +64,11 @@ namespace CsvHelper.TypeConversion
         /// <returns>The object created from the string.</returns>
         public override object ConvertFromString(string text, ICsvReaderRow row, CsvPropertyMapData propertyMapData)
         {
-            if (string.IsNullOrEmpty(text))
-            {
-                return null;
-            }
-
-            foreach (var nullValue in propertyMapData.TypeConverterOptions.NullValues)
-            {
-                if (text == nullValue)
-                {
-                    return null;
-                }
-            }
-
-            return UnderlyingTypeConverter.ConvertFromString(text, row, propertyMapData);
+            return string.IsNullOrEmpty(text)
+                ? null
+                : (propertyMapData.TypeConverterOptions.NullValues.Any(nullValue => text == nullValue)
+                    ? null
+                    : UnderlyingTypeConverter.ConvertFromString(text, row, propertyMapData));
         }
 
         /// <summary>

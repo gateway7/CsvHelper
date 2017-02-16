@@ -42,6 +42,25 @@ namespace CsvHelper.TypeConversion
         /// <param name="row">The <see cref="ICsvReaderRow" /> for the current record.</param>
         /// <param name="propertyMapData">The <see cref="CsvPropertyMapData" /> for the property/field being created.</param>
         /// <returns>The object created from the string.</returns>
+        public virtual T ConvertFromString<T>(string text, ICsvReaderRow row, CsvPropertyMapData propertyMapData)
+        {
+            var converterOptions = row?.Configuration?.TypeConverterOptionsFactory?.GetOptions<T>() ?? propertyMapData.TypeConverterOptions;
+
+            if (converterOptions.TreatNullAsDefault && (string.IsNullOrWhiteSpace(text) || converterOptions.IsNullValue(text)))
+            {
+                return default(T);
+            }
+
+            throw new CsvTypeConverterException("The conversion cannot be performed.");
+        }
+
+        /// <summary>
+        /// Converts the string to an object.
+        /// </summary>
+        /// <param name="text">The string to convert to an object.</param>
+        /// <param name="row">The <see cref="ICsvReaderRow" /> for the current record.</param>
+        /// <param name="propertyMapData">The <see cref="CsvPropertyMapData" /> for the property/field being created.</param>
+        /// <returns>The object created from the string.</returns>
         public virtual object ConvertFromString(string text, ICsvReaderRow row, CsvPropertyMapData propertyMapData)
         {
             throw new CsvTypeConverterException("The conversion cannot be performed.");

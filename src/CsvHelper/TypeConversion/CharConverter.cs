@@ -26,7 +26,10 @@ namespace CsvHelper.TypeConversion
                 text = text.Trim();
             }
 
-            return char.TryParse(text, out char c) ? c : base.ConvertFromString(text, row, propertyMapData);
+            return
+                char.TryParse(text, out char result)
+                    ? result
+                    : base.ConvertFromString<char>(text, row, propertyMapData);
         }
     }
 }

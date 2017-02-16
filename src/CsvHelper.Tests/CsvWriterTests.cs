@@ -948,6 +948,11 @@ namespace CsvHelper.Tests
             {
                 return true;
             }
+
+            public T ConvertFromString<T>(string text, ICsvReaderRow row, CsvPropertyMapData propertyMapData)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         private class Person

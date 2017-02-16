@@ -21,20 +21,12 @@ namespace CsvHelper.TypeConversion
         /// <returns>The object created from the string.</returns>
         public override object ConvertFromString(string text, ICsvReaderRow row, CsvPropertyMapData propertyMapData)
         {
-            if (text == null)
-            {
-                return string.Empty;
-            }
-
-            foreach (var nullValue in propertyMapData.TypeConverterOptions.NullValues)
-            {
-                if (text == nullValue)
-                {
-                    return null;
-                }
-            }
-
-            return text;
+            return
+                text == null
+                    ? string.Empty
+                    : (propertyMapData.TypeConverterOptions.IsNullValue(text)
+                        ? null
+                        : text);
         }
     }
 }
