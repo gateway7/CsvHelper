@@ -233,7 +233,7 @@ namespace CsvHelper
                 TypeConverter = converter,
                 TypeConverterOptions = { CultureInfo = _configuration.CultureInfo }
             };
-            propertyMapData.TypeConverterOptions = TypeConverterOptions.Merge(_configuration.TypeConverterOptionsFactory.GetOptions(type), propertyMapData.TypeConverterOptions);
+            propertyMapData.TypeConverterOptions = TypeConverterOptions.Merge(_configuration.TypeConverterOptions.Get(type), propertyMapData.TypeConverterOptions);
 
             var fieldString = converter.ConvertToString(field, this, propertyMapData);
             WriteConvertedField(fieldString);
@@ -791,7 +791,7 @@ namespace CsvHelper
                     }
 
                     propertyMap.Data.TypeConverterOptions = TypeConverterOptions.Merge(
-                                                                                       _configuration.TypeConverterOptionsFactory.GetOptions(propertyMap.Data.Member.MemberType()), propertyMap.Data.TypeConverterOptions);
+                                                                                       _configuration.TypeConverterOptions.Get(propertyMap.Data.Member.MemberType()), propertyMap.Data.TypeConverterOptions);
 
                     var method = propertyMap.Data.TypeConverter.GetType().GetMethod("ConvertToString");
                     fieldExpression = Expression.Convert(fieldExpression, typeof(object));
@@ -836,7 +836,7 @@ namespace CsvHelper
                 TypeConverter = typeConverter,
                 TypeConverterOptions = { CultureInfo = _configuration.CultureInfo }
             };
-            propertyMapData.TypeConverterOptions = TypeConverterOptions.Merge(_configuration.TypeConverterOptionsFactory.GetOptions(type), propertyMapData.TypeConverterOptions);
+            propertyMapData.TypeConverterOptions = TypeConverterOptions.Merge(_configuration.TypeConverterOptions.Get(type), propertyMapData.TypeConverterOptions);
 
             fieldExpression = Expression.Call(typeConverterExpression, method, fieldExpression, Expression.Constant(this), Expression.Constant(propertyMapData));
             fieldExpression = Expression.Call(Expression.Constant(this), "WriteConvertedField", null, fieldExpression);

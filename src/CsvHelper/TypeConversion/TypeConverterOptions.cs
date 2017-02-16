@@ -46,7 +46,7 @@ namespace CsvHelper.TypeConversion
         public string Format { get; set; }
 
         /// <summary>
-        /// Treat null string values as default for the field's type. 
+        /// Treat null fields as default values for their type. 
         /// </summary>
         public bool TreatNullAsDefault { get; set; }
 
@@ -115,6 +115,8 @@ namespace CsvHelper.TypeConversion
                 {
                     options.Format = source.Format;
                 }
+
+                options.TreatNullAsDefault = source.TreatNullAsDefault;
 
                 // Only change the values if they are different than the defaults.
                 // This means there were explicit changes made to the options.

@@ -45,7 +45,7 @@ namespace CsvHelper.TypeConversion
         /// <returns>The object created from the string.</returns>
         public virtual T ConvertFromString<T>(string text, ICsvReaderRow row, CsvPropertyMapData propertyMapData)
         {
-            var converterOptions = row?.Configuration?.TypeConverterOptionsFactory?.GetOptions<T>() ?? propertyMapData.TypeConverterOptions;
+            var converterOptions = row?.Configuration.TypeConverterOptions?.Get<T>() ?? propertyMapData.TypeConverterOptions;
 
             if (converterOptions.TreatNullAsDefault && (string.IsNullOrWhiteSpace(text) || converterOptions.IsNullValue(text)))
             {
@@ -65,7 +65,7 @@ namespace CsvHelper.TypeConversion
         /// <returns>The object created from the string.</returns>
         public virtual object ConvertFromString(Type type, string text, ICsvReaderRow row, CsvPropertyMapData propertyMapData)
         {
-            var converterOptions = row?.Configuration?.TypeConverterOptionsFactory?.GetOptions(type) ?? propertyMapData.TypeConverterOptions;
+            var converterOptions = row?.Configuration.TypeConverterOptions?[type] ?? propertyMapData.TypeConverterOptions;
 
             if (converterOptions.TreatNullAsDefault && (string.IsNullOrWhiteSpace(text) || converterOptions.IsNullValue(text)))
             {

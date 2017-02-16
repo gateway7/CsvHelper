@@ -1,6 +1,5 @@
 ﻿namespace CsvHelper.Tests.TypeConversion
 {
-    using System;
     using System.IO;
     using System.Linq;
     using CsvHelper.Configuration;
@@ -22,7 +21,7 @@
                 stream.Position = 0;
 
                 csv.Configuration.HasHeaderRecord = false;
-                csv.Configuration.TypeConverterOptionsFactory.GetOptions<string>().NullValues.Add(string.Empty);
+                csv.Configuration.TypeConverterOptions.Get<string>().NullValues.Add(string.Empty);
                 var records = csv.GetRecords<Test>().ToList();
 
                 Assert.Null(records[0].Id);
@@ -40,16 +39,16 @@
             {
                 writer.WriteLine("NULL,null,0,,null");
                 writer.Flush();
+
                 stream.Position = 0;
-
-                var converterOptions = new TypeConverterOptions { TreatNullAsDefault = true };
-
                 csv.Configuration.HasHeaderRecord = false;
-                csv.Configuration.TypeConverterOptionsFactory.AddOptions<byte>(converterOptions);
-                csv.Configuration.TypeConverterOptionsFactory.AddOptions<short>(converterOptions);
-                csv.Configuration.TypeConverterOptionsFactory.AddOptions<int>(converterOptions);
-                csv.Configuration.TypeConverterOptionsFactory.AddOptions<long>(converterOptions);
-                csv.Configuration.TypeConverterOptionsFactory.AddOptions<Num>(converterOptions);
+                csv.Configuration.TypeConverterOptions.Default.TreatNullAsDefault = false;
+
+                Assert.Throws<CsvTypeConverterException>(() => csv.GetRecords<NullTest>().ToList());
+
+                stream.Position = 0;
+                csv.Configuration.TypeConverterOptions.Clear();
+                csv.Configuration.TypeConverterOptions.Default.TreatNullAsDefault = true;
 
                 var records = csv.GetRecords<NullTest>().ToList();
 
@@ -58,11 +57,6 @@
                 Assert.Equal(0, records[0].Int32);
                 Assert.Equal(0, records[0].Int64);
                 Assert.Equal(Num.Zero, records[0].Num);
-
-                stream.Position = 0;
-                csv.Configuration.TypeConverterOptionsFactory.RemoveOptions<byte>();
-
-                Assert.Throws<CsvTypeConverterException>(() => csv.GetRecords<NullTest>().ToList());
             }
         }
 
@@ -100,7 +94,7 @@
                 stream.Position = 0;
 
                 csv.Configuration.HasHeaderRecord = false;
-                csv.Configuration.TypeConverterOptionsFactory.GetOptions<string>().NullValues.Add("null");
+                csv.Configuration.TypeConverterOptions.Get<string>().NullValues.Add("null");
                 csv.Configuration.RegisterClassMap<TestMap>();
                 var records = csv.GetRecords<Test>().ToList();
 

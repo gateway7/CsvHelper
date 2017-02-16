@@ -37,9 +37,9 @@
         CultureInfo CultureInfo { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="TypeConverterOptionsFactory" />.
+        /// Gets or sets the <see cref="TypeConverterOptions" />.
         /// </summary>
-        TypeConverterOptionsFactory TypeConverterOptionsFactory { get; set; }
+        TypeConverterOptionsCollection TypeConverterOptions { get; set; }
 
         /// <summary>
         /// Prepares the header field for matching against a property/field name.

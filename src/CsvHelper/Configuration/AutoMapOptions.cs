@@ -38,9 +38,9 @@
         public MemberTypes MemberTypes { get; set; } = MemberTypes.Properties;
 
         /// <summary>
-        /// Gets or sets the <see cref="TypeConverterOptionsFactory" />.
+        /// Gets or sets the <see cref="TypeConverterOptions" />.
         /// </summary>
-        public TypeConverterOptionsFactory TypeConverterOptionsFactory { get; set; } = new TypeConverterOptionsFactory();
+        public TypeConverterOptionsCollection TypeConverterOptions { get; set; } = new TypeConverterOptionsCollection();
 
         /// <summary>
         /// Create options using the defaults.
@@ -57,7 +57,7 @@
             PrefixReferenceHeaders = configuration.PrefixReferenceHeaders;
             IncludePrivateProperties = configuration.IncludePrivateMembers;
             MemberTypes = configuration.MemberTypes;
-            TypeConverterOptionsFactory = configuration.TypeConverterOptionsFactory;
+            TypeConverterOptions = configuration.TypeConverterOptions;
         }
 
         /// <summary>

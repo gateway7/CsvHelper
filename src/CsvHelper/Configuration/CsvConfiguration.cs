@@ -35,9 +35,9 @@ namespace CsvHelper.Configuration
         private bool _quoteNoFields;
 
         /// <summary>
-        /// Gets or sets the <see cref="TypeConverterOptionsFactory" />.
+        /// Gets or sets the <see cref="TypeConverterOptions" />.
         /// </summary>
-        public virtual TypeConverterOptionsFactory TypeConverterOptionsFactory { get; set; } = new TypeConverterOptionsFactory();
+        public virtual TypeConverterOptionsCollection TypeConverterOptions { get; set; } = new TypeConverterOptionsCollection();
 
         /// <summary>
         /// Gets or sets the property/field binding flags.
