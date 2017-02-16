@@ -23,11 +23,13 @@ namespace CsvHelper.Tests.TypeConversion
         public void ConvertToStringTest()
         {
             var converter = new EnumConverter(typeof(TestEnum));
-            var propertyMapData = new CsvPropertyMapData(null)
-            {
-                TypeConverter = converter,
-                TypeConverterOptions = { CultureInfo = CultureInfo.CurrentCulture }
-            };
+
+            var propertyMapData =
+                new CsvPropertyMapData(null)
+                {
+                    TypeConverter = converter,
+                    TypeConverterOptions = { CultureInfo = CultureInfo.CurrentCulture }
+                };
 
             Assert.Equal("None", converter.ConvertToString((TestEnum)0, null, propertyMapData));
             Assert.Equal("None", converter.ConvertToString(TestEnum.None, null, propertyMapData));
@@ -49,12 +51,14 @@ namespace CsvHelper.Tests.TypeConversion
 
             Assert.Throws<CsvTypeConverterException>(() => converter.ConvertFromString("", null, propertyMapData));
             Assert.Throws<CsvTypeConverterException>(() => converter.ConvertFromString(null, null, propertyMapData));
+
+            propertyMapData.TypeConverterOptions.TreatNullAsDefault = true;
+            Assert.Equal(TestEnum.None, converter.ConvertFromString("null", null, propertyMapData));
         }
 
         private enum TestEnum
         {
             None = 0,
-
             One = 1
         }
     }

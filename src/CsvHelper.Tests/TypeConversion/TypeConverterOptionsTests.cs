@@ -1,5 +1,6 @@
 ﻿namespace CsvHelper.Tests.TypeConversion
 {
+    using System;
     using System.IO;
     using System.Linq;
     using CsvHelper.Configuration;
@@ -37,7 +38,7 @@
             using (var reader = new StreamReader(stream))
             using (var csv = new CsvReader(reader))
             {
-                writer.WriteLine("NULL,null,0,");
+                writer.WriteLine("NULL,null,0,,null");
                 writer.Flush();
                 stream.Position = 0;
 
@@ -48,6 +49,7 @@
                 csv.Configuration.TypeConverterOptionsFactory.AddOptions<short>(converterOptions);
                 csv.Configuration.TypeConverterOptionsFactory.AddOptions<int>(converterOptions);
                 csv.Configuration.TypeConverterOptionsFactory.AddOptions<long>(converterOptions);
+                csv.Configuration.TypeConverterOptionsFactory.AddOptions<Num>(converterOptions);
 
                 var records = csv.GetRecords<NullTest>().ToList();
 
@@ -55,6 +57,7 @@
                 Assert.Equal(0, records[0].Int16);
                 Assert.Equal(0, records[0].Int32);
                 Assert.Equal(0, records[0].Int64);
+                Assert.Equal(Num.Zero, records[0].Num);
 
                 stream.Position = 0;
                 csv.Configuration.TypeConverterOptionsFactory.RemoveOptions<byte>();
@@ -113,6 +116,11 @@
             public string Name { get; set; }
         }
 
+        private enum Num
+        {
+            Zero, One, Two
+        }
+
         private class NullTest
         {
             public byte Int8 { get; set; }
@@ -122,6 +130,8 @@
             public int Int32 { get; set; }
 
             public long Int64 { get; set; }
+
+            public Num Num { get; set; }
         }
 
         private sealed class TestMap : CsvClassMap<Test>

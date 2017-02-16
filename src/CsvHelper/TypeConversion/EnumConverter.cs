@@ -14,7 +14,7 @@ namespace CsvHelper.TypeConversion
     /// </summary>
     public class EnumConverter : DefaultTypeConverter
     {
-        private readonly Type type;
+        private readonly Type _type;
 
         /// <summary>
         /// Creates a new <see cref="EnumConverter" /> for the given <see cref="Enum" /> <see cref="System.Type" />.
@@ -22,13 +22,12 @@ namespace CsvHelper.TypeConversion
         /// <param name="type">The type of the Enum.</param>
         public EnumConverter(Type type)
         {
-            var isAssignableFrom = typeof(Enum).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
             if (!typeof(Enum).IsAssignableFrom(type))
             {
                 throw new ArgumentException($"'{type.FullName}' is not an Enum.");
             }
 
-            this.type = type;
+            _type = type;
         }
 
         /// <summary>
@@ -42,11 +41,11 @@ namespace CsvHelper.TypeConversion
         {
             try
             {
-                return Enum.Parse(type, text, true);
+                return Enum.Parse(_type, text, true);
             }
             catch
             {
-                return base.ConvertFromString(text, row, propertyMapData);
+                return base.ConvertFromString(_type, text, row, propertyMapData);
             }
         }
     }
