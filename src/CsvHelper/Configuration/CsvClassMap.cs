@@ -87,7 +87,7 @@ namespace CsvHelper.Configuration
         /// <returns>The reference mapping for the property/field.</returns>
         public virtual CsvPropertyReferenceMap References(Type classMapType, MemberInfo member, params object[] constructorArgs)
         {
-            if (!typeof(CsvClassMap).IsAssignableFrom(classMapType))
+            if (!typeof(CsvClassMap).GetTypeInfo().IsAssignableFrom(classMapType))
             {
                 throw new InvalidOperationException($"Argument {nameof(classMapType)} is not a CsvClassMap.");
             }
@@ -186,8 +186,8 @@ namespace CsvHelper.Configuration
         /// <param name="indexStart">The index starting point.</param>
         internal static void AutoMapInternal(CsvClassMap map, AutoMapOptions options, LinkedList<Type> mapParents, int indexStart = 0)
         {
-            var type = map.GetType().GetTypeInfo().BaseType.GetGenericArguments()[0];
-            if (typeof(IEnumerable).IsAssignableFrom(type))
+            var type = map.GetType().GetTypeInfo().BaseType.GetTypeInfo().GetGenericArguments()[0];
+            if (typeof(IEnumerable).GetTypeInfo().IsAssignableFrom(type))
             {
                 throw new CsvConfigurationException(
                                                     "Types that inherit IEnumerable cannot be auto mapped. " +
@@ -205,14 +205,14 @@ namespace CsvHelper.Configuration
             var members = new List<MemberInfo>();
             if ((options.MemberTypes & MemberTypes.Properties) == MemberTypes.Properties)
             {
-                var properties = type.GetProperties(flags);
+                var properties = type.GetTypeInfo().GetProperties(flags);
                 members.AddRange(properties);
             }
 
             if ((options.MemberTypes & MemberTypes.Fields) == MemberTypes.Fields)
             {
                 var fields = new List<MemberInfo>();
-                foreach (var field in type.GetFields(flags))
+                foreach (var field in type.GetTypeInfo().GetFields(flags))
                 {
                     if (!field.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false).Any())
                     {
@@ -234,7 +234,7 @@ namespace CsvHelper.Configuration
                 }
 
                 var isDefaultConverter = typeConverterType == typeof(DefaultTypeConverter);
-                var hasDefaultConstructor = member.MemberType().GetConstructor(new Type[0]) != null;
+                var hasDefaultConstructor = member.MemberType().GetTypeInfo().GetConstructor(new Type[0]) != null;
                 if (isDefaultConverter && hasDefaultConstructor)
                 {
                     if (options.IgnoreReferences)

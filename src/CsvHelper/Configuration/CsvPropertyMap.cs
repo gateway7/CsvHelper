@@ -125,7 +125,7 @@ namespace CsvHelper.Configuration
         public virtual CsvPropertyMap Default<T>(T defaultValue)
         {
             var returnType = typeof(T);
-            if (!Data.Member.MemberType().IsAssignableFrom(returnType))
+            if (!Data.Member.MemberType().GetTypeInfo().IsAssignableFrom(returnType))
             {
                 throw new CsvConfigurationException($"Default type '{returnType.FullName}' cannot be assigned to property/field type '{Data.Member.MemberType().FullName}'.");
             }
@@ -148,7 +148,7 @@ namespace CsvHelper.Configuration
             if (Data.Member != null)
             {
                 var returnType = typeof(T);
-                if (!Data.Member.MemberType().IsAssignableFrom(returnType))
+                if (!Data.Member.MemberType().GetTypeInfo().IsAssignableFrom(returnType))
                 {
                     throw new CsvConfigurationException($"Constant type '{returnType.FullName}' cannot be assigned to property/field type '{Data.Member.MemberType().FullName}'.");
                 }
@@ -196,7 +196,7 @@ namespace CsvHelper.Configuration
         public virtual CsvPropertyMap ConvertUsing<T>(Func<ICsvReaderRow, T> convertExpression)
         {
             var returnType = typeof(T);
-            if (!Data.Member.MemberType().IsAssignableFrom(returnType))
+            if (!Data.Member.MemberType().GetTypeInfo().IsAssignableFrom(returnType))
             {
                 throw new CsvConfigurationException($"ConvertUsing return type '{returnType.FullName}' cannot be assigned to property/field type '{Data.Member.MemberType().FullName}'.");
             }

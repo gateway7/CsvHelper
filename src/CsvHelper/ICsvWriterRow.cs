@@ -94,7 +94,7 @@
         void WriteField<T, TConverter>(T field);
 
         /// <summary>
-        /// Write the Excel seperator record.
+        /// Write the Excel separator record.
         /// </summary>
         void WriteExcelSeparator();
 

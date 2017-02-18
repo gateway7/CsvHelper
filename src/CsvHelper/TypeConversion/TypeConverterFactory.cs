@@ -107,7 +107,7 @@ namespace CsvHelper.TypeConversion
                 }
             }
 
-            if (typeof(Enum).IsAssignableFrom(type))
+            if (typeof(Enum).GetTypeInfo().IsAssignableFrom(type))
             {
                 AddConverter(type, new EnumConverter(type));
                 return GetConverter(type);
@@ -168,7 +168,7 @@ namespace CsvHelper.TypeConversion
             }
 
             // A specific IEnumerable converter doesn't exist.
-            if (typeof(IEnumerable).IsAssignableFrom(type))
+            if (typeof(IEnumerable).GetTypeInfo().IsAssignableFrom(type))
             {
                 return new EnumerableConverter();
             }

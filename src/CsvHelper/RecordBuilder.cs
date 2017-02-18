@@ -9,7 +9,7 @@
     {
         private const int DEFAULT_CAPACITY = 16;
 
-        private string[] record;
+        private string[] _record;
 
         /// <summary>
         /// The number of records.
@@ -27,14 +27,14 @@
         public RecordBuilder() : this(DEFAULT_CAPACITY) {}
 
         /// <summary>
-        /// Creatse a new <see cref="RecordBuilder" /> using the given capacity.
+        /// Creates a new <see cref="RecordBuilder" /> using the given capacity.
         /// </summary>
         /// <param name="capacity">The initial capacity.</param>
         public RecordBuilder(int capacity)
         {
             Capacity = capacity > 0 ? capacity : DEFAULT_CAPACITY;
 
-            record = new string[capacity];
+            _record = new string[capacity];
         }
 
         /// <summary>
@@ -44,13 +44,13 @@
         /// <returns>The current instance of the <see cref="RecordBuilder" />.</returns>
         public virtual RecordBuilder Add(string field)
         {
-            if (Length == record.Length)
+            if (Length == _record.Length)
             {
                 Capacity = Capacity * 2;
-                Array.Resize(ref record, Capacity);
+                Array.Resize(ref _record, Capacity);
             }
 
-            record[Length] = field;
+            _record[Length] = field;
             Length++;
 
             return this;
@@ -74,7 +74,7 @@
         public virtual string[] ToArray()
         {
             var array = new string[Length];
-            Array.Copy(record, array, Length);
+            Array.Copy(_record, array, Length);
 
             return array;
         }

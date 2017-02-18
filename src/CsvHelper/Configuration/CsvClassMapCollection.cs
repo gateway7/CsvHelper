@@ -3,9 +3,6 @@
 // See LICENSE.txt for details or visit http://www.opensource.org/licenses/ms-pl.html for MS-PL and http://opensource.org/licenses/Apache-2.0 for Apache 2.0.
 // http://csvhelper.com
 
-
-#if !NET_2_0
-
 namespace CsvHelper.Configuration
 {
     using System;
@@ -18,7 +15,7 @@ namespace CsvHelper.Configuration
     /// </summary>
     public class CsvClassMapCollection
     {
-        private readonly Dictionary<Type, CsvClassMap> data = new Dictionary<Type, CsvClassMap>();
+        private readonly Dictionary<Type, CsvClassMap> _data = new Dictionary<Type, CsvClassMap>();
 
         /// <summary>
         /// Gets the <see cref="CsvClassMap" /> for the specified record type.
@@ -40,7 +37,7 @@ namespace CsvHelper.Configuration
                 {
                     if (currentType == type)
                     {
-                        return data.ContainsKey(currentType) ? data[currentType] : null;
+                        return _data.ContainsKey(currentType) ? _data[currentType] : null;
                     }
 
                     currentType = type.GetTypeInfo().BaseType;
@@ -70,15 +67,15 @@ namespace CsvHelper.Configuration
         /// <param name="map">The map.</param>
         public virtual void Add(CsvClassMap map)
         {
-            var type = GetGenericCsvClassMapType(map.GetType()).GetGenericArguments().First();
+            var type = GetGenericCsvClassMapType(map.GetType()).GetTypeInfo().GetGenericArguments().First();
 
-            if (data.ContainsKey(type))
+            if (_data.ContainsKey(type))
             {
-                data[type] = map;
+                _data[type] = map;
             }
             else
             {
-                data.Add(type, map);
+                _data.Add(type, map);
             }
         }
 
@@ -88,14 +85,14 @@ namespace CsvHelper.Configuration
         /// <param name="classMapType">The class map type.</param>
         internal virtual void Remove(Type classMapType)
         {
-            if (!typeof(CsvClassMap).IsAssignableFrom(classMapType))
+            if (!typeof(CsvClassMap).GetTypeInfo().IsAssignableFrom(classMapType))
             {
                 throw new ArgumentException("The class map type must inherit from CsvClassMap.");
             }
 
-            var type = GetGenericCsvClassMapType(classMapType).GetGenericArguments().First();
+            var type = GetGenericCsvClassMapType(classMapType).GetTypeInfo().GetGenericArguments().First();
 
-            data.Remove(type);
+            _data.Remove(type);
         }
 
         /// <summary>
@@ -103,7 +100,7 @@ namespace CsvHelper.Configuration
         /// </summary>
         internal virtual void Clear()
         {
-            data.Clear();
+            _data.Clear();
         }
 
         /// <summary>
@@ -122,5 +119,3 @@ namespace CsvHelper.Configuration
         }
     }
 }
-
-#endif // !NET_2_0

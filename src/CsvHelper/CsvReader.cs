@@ -1524,7 +1524,7 @@ namespace CsvHelper
         /// <param name="recordType">The type of the primitive to create the function for.</param>
         protected virtual void CreateFuncForPrimitive(Type recordType)
         {
-            var method = typeof(ICsvReaderRow).GetProperty("Item", typeof(string), new[] { typeof(int) }).GetGetMethod();
+            var method = typeof(ICsvReaderRow).GetTypeInfo().GetProperty("Item", typeof(string), new[] { typeof(int) }).GetGetMethod();
             Expression fieldExpression = Expression.Call(Expression.Constant(this), method, Expression.Constant(0, typeof(int)));
 
             var propertyMapData = new CsvPropertyMapData(null)
@@ -1631,7 +1631,7 @@ namespace CsvHelper
                 }
 
                 // Get the field using the field index.
-                var method = typeof(ICsvReaderRow).GetProperty("Item", typeof(string), new[] { typeof(int) }).GetGetMethod();
+                var method = typeof(ICsvReaderRow).GetTypeInfo().GetProperty("Item", typeof(string), new[] { typeof(int) }).GetGetMethod();
                 Expression fieldExpression = Expression.Call(Expression.Constant(this), method, Expression.Constant(index, typeof(int)));
 
                 // Convert the field.

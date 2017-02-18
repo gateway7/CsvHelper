@@ -20,7 +20,7 @@
         /// <returns>The object created from the string.</returns>
         public override object ConvertFromString(string text, ICsvReaderRow row, CsvPropertyMapData propertyMapData)
         {
-            var type = propertyMapData.Member.MemberType().GetGenericArguments()[0];
+            var type = propertyMapData.Member.MemberType().GetTypeInfo().GetGenericArguments()[0];
             var listType = typeof(List<>);
             listType = listType.MakeGenericType(type);
             var list = (IList)ReflectionHelper.CreateInstance(listType);

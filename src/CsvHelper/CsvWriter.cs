@@ -276,18 +276,18 @@ namespace CsvHelper
         }
 
         /// <summary>
-        /// Write the Excel seperator record.
+        /// Write the Excel separator record.
         /// </summary>
         public virtual void WriteExcelSeparator()
         {
             if (_hasHeaderBeenWritten)
             {
-                throw new CsvWriterException("The Excel seperator record must be the first record written in the file.");
+                throw new CsvWriterException("The Excel separator record must be the first record written in the file.");
             }
 
             if (_hasRecordBeenWritten)
             {
-                throw new CsvWriterException("The Excel seperator record must be the first record written in the file.");
+                throw new CsvWriterException("The Excel separator record must be the first record written in the file.");
             }
 
             WriteField("sep=" + _configuration.Delimiter, false);
@@ -331,8 +331,6 @@ namespace CsvHelper
             _isDisposed = true;
             _serializer = null;
         }
-
-#if !NET_2_0
 
         /// <summary>
         /// Writes the header record from the given properties/fields.
@@ -406,8 +404,6 @@ namespace CsvHelper
             _hasHeaderBeenWritten = true;
         }
 
-#if !NET_2_0 && !NET_3_5 && !PCL
-
         /// <summary>
         /// Writes the header record for the given dynamic object.
         /// </summary>
@@ -444,8 +440,6 @@ namespace CsvHelper
             _hasHeaderBeenWritten = true;
         }
 
-#endif
-
         /// <summary>
         /// Writes the record to the CSV file.
         /// </summary>
@@ -453,7 +447,6 @@ namespace CsvHelper
         /// <param name="record">The record to write.</param>
         public virtual void WriteRecord<T>(T record)
         {
-#if !NET_2_0 && !NET_3_5 && !PCL
             if (record is IDynamicMetaObjectProvider dynamicRecord)
             {
                 if (_configuration.HasHeaderRecord && !_hasHeaderBeenWritten)
@@ -462,7 +455,6 @@ namespace CsvHelper
                     NextRecord();
                 }
             }
-#endif
 
             try
             {
@@ -496,10 +488,10 @@ namespace CsvHelper
 
                 // Write the header. If records is a List<dynamic>, the header won't be written.
                 // This is because typeof( T ) = Object.
-                var genericEnumerable = records.GetType().GetInterfaces().FirstOrDefault(t => t.GetTypeInfo().IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+                var genericEnumerable = records.GetType().GetTypeInfo().GetInterfaces().FirstOrDefault(t => t.GetTypeInfo().IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>));
                 if (genericEnumerable != null)
                 {
-                    recordType = genericEnumerable.GetGenericArguments().Single();
+                    recordType = genericEnumerable.GetTypeInfo().GetGenericArguments().Single();
                     var isPrimitive = recordType.GetTypeInfo().IsPrimitive;
                     if (_configuration.HasHeaderRecord && !_hasHeaderBeenWritten && !isPrimitive && recordType != typeof(object))
                     {
@@ -515,8 +507,6 @@ namespace CsvHelper
                 {
                     recordType = record.GetType();
 
-#if !NET_3_5 && !PCL
-
                     if (record is IDynamicMetaObjectProvider dynamicObject)
                     {
                         if (_configuration.HasHeaderRecord && !_hasHeaderBeenWritten)
@@ -527,8 +517,6 @@ namespace CsvHelper
                     }
                     else
                     {
-#endif
-
                         // If records is a List<dynamic>, the header hasn't been written yet.
                         // Write the header based on the record type.
                         var isPrimitive = recordType.GetTypeInfo().IsPrimitive;
@@ -537,9 +525,7 @@ namespace CsvHelper
                             WriteHeader(recordType);
                             NextRecord();
                         }
-#if !NET_3_5 && !PCL
                     }
-#endif
 
                     try
                     {
@@ -635,9 +621,9 @@ namespace CsvHelper
                     return Expression.Property(recordExpression, (PropertyInfo)propertyMap.Data.Member);
                 }
 
-                if (propertyMap.Data.Member is FieldInfo)
+                if (propertyMap.Data.Member is FieldInfo info)
                 {
-                    return Expression.Field(recordExpression, (FieldInfo)propertyMap.Data.Member);
+                    return Expression.Field(recordExpression, info);
                 }
             }
 
@@ -682,10 +668,6 @@ namespace CsvHelper
             return null;
         }
 
-#endif
-
-#if !NET_2_0
-
         /// <summary>
         /// Gets the action delegate used to write the custom
         /// class object to the writer.
@@ -717,8 +699,6 @@ namespace CsvHelper
         /// <param name="record">The record that will be written.</param>
         protected virtual Delegate CreateWriteRecordAction<T>(Type type, T record)
         {
-#if !NET_3_5 && !PCL
-
             var expandoObject = record as ExpandoObject;
             if (expandoObject != null)
             {
@@ -729,8 +709,6 @@ namespace CsvHelper
             {
                 return CreateActionForDynamic(dynamicObject);
             }
-
-#endif
 
             if (_configuration.Maps[type] == null)
             {
@@ -793,7 +771,7 @@ namespace CsvHelper
                     propertyMap.Data.TypeConverterOptions = TypeConverterOptions.Merge(
                                                                                        _configuration.TypeConverterOptions.Get(propertyMap.Data.Member.MemberType()), propertyMap.Data.TypeConverterOptions);
 
-                    var method = propertyMap.Data.TypeConverter.GetType().GetMethod("ConvertToString");
+                    var method = propertyMap.Data.TypeConverter.GetType().GetTypeInfo().GetMethod("ConvertToString");
                     fieldExpression = Expression.Convert(fieldExpression, typeof(object));
                     fieldExpression = Expression.Call(typeConverterExpression, method, fieldExpression, Expression.Constant(this), Expression.Constant(propertyMap.Data));
 
@@ -828,7 +806,7 @@ namespace CsvHelper
 
             var typeConverter = TypeConverterFactory.GetConverter(type);
             var typeConverterExpression = Expression.Constant(typeConverter);
-            var method = typeConverter.GetType().GetMethod("ConvertToString");
+            var method = typeConverter.GetType().GetTypeInfo().GetMethod("ConvertToString");
 
             var propertyMapData = new CsvPropertyMapData(null)
             {
@@ -847,8 +825,6 @@ namespace CsvHelper
 
             return action;
         }
-
-#if !NET_2_0 && !NET_3_5 && !PCL
 
         /// <summary>
         /// Creates an action for an ExpandoObject. This needs to be separate
@@ -893,9 +869,12 @@ namespace CsvHelper
                 var getMemberBinder = (GetMemberBinder)Binder.GetMember(0, propertyName, type, new[] { CSharpArgumentInfo.Create(0, null) });
                 var getMemberMetaObject = metaObject.BindGetMember(getMemberBinder);
                 var fieldExpression = getMemberMetaObject.Expression;
+
                 fieldExpression = Expression.Call(Expression.Constant(this), "WriteField", new[] { typeof(object) }, fieldExpression);
                 fieldExpression = Expression.Block(fieldExpression, Expression.Label(CallSiteBinder.UpdateLabel));
+
                 var lambda = Expression.Lambda(fieldExpression, parameterExpression);
+
                 delegates.Add(lambda.Compile());
             }
 
@@ -905,8 +884,6 @@ namespace CsvHelper
 
             return action;
         }
-
-#endif
 
         /// <summary>
         /// Combines the delegates into a single multicast delegate.
@@ -949,7 +926,5 @@ namespace CsvHelper
 
             return !cantWrite;
         }
-
-#endif
     }
 }

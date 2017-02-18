@@ -63,14 +63,12 @@ namespace CsvHelper
             return default(T);
         }
 
-#if !NET_2_0
-
         private static Delegate CreateInstanceDelegate(Type type, params object[] args)
         {
             Delegate compiled;
             if (type.GetTypeInfo().IsValueType)
             {
-                var method = typeof(ReflectionHelper).GetMethod("Default", BindingFlags.Static | BindingFlags.NonPublic);
+                var method = typeof(ReflectionHelper).GetTypeInfo().GetMethod("Default", BindingFlags.Static | BindingFlags.NonPublic);
                 method = method.MakeGenericMethod(type);
                 compiled = Expression.Lambda(Expression.Call(method)).Compile();
             }
@@ -78,7 +76,7 @@ namespace CsvHelper
             {
                 var argumentTypes = args.Select(a => a.GetType()).ToArray();
                 var argumentExpressions = argumentTypes.Select((t, i) => Expression.Parameter(t, "var" + i)).ToArray();
-                var constructorInfo = type.GetConstructor(argumentTypes);
+                var constructorInfo = type.GetTypeInfo().GetConstructor(argumentTypes);
                 if (constructorInfo == null)
                 {
                     throw new InvalidOperationException("No public parameterless constructor found.");
@@ -159,7 +157,5 @@ namespace CsvHelper
 
             return memberExpression;
         }
-
-#endif
     }
 }

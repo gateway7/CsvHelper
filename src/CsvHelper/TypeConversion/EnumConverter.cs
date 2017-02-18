@@ -22,7 +22,7 @@ namespace CsvHelper.TypeConversion
         /// <param name="type">The type of the Enum.</param>
         public EnumConverter(Type type)
         {
-            if (!typeof(Enum).IsAssignableFrom(type))
+            if (!typeof(Enum).GetTypeInfo().IsAssignableFrom(type))
             {
                 throw new ArgumentException($"'{type.FullName}' is not an Enum.");
             }

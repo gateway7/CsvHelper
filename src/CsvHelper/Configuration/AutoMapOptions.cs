@@ -67,7 +67,7 @@
         public AutoMapOptions Copy()
         {
             var copy = new AutoMapOptions();
-            var properties = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var properties = GetType().GetTypeInfo().GetProperties(BindingFlags.Public | BindingFlags.Instance);
             foreach (var property in properties)
             {
                 property.SetValue(copy, property.GetValue(this, null), null);

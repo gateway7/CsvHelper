@@ -23,7 +23,7 @@
             // Since we're using the PropertyType here, this converter can be used for multiple types
             // as long as they implement IList.
             var list = (IList)ReflectionHelper.CreateInstance(propertyMapData.Member.MemberType());
-            var type = propertyMapData.Member.MemberType().GetGenericArguments()[0];
+            var type = propertyMapData.Member.MemberType().GetTypeInfo().GetGenericArguments()[0];
 
             if (propertyMapData.IsNameSet || row.Configuration.HasHeaderRecord && !propertyMapData.IsIndexSet)
             {

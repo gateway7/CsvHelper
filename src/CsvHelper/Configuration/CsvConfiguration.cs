@@ -426,7 +426,7 @@ namespace CsvHelper.Configuration
         /// <param name="classMapType">The type of mapping class to use.</param>
         public virtual CsvClassMap RegisterClassMap(Type classMapType)
         {
-            if (!typeof(CsvClassMap).IsAssignableFrom(classMapType))
+            if (!typeof(CsvClassMap).GetTypeInfo().IsAssignableFrom(classMapType))
             {
                 throw new ArgumentException("The class map type must inherit from CsvClassMap.");
             }
