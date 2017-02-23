@@ -161,7 +161,7 @@ namespace CsvHelper.Configuration
         }
 
         /// <summary>
-        /// Specifies the <see cref="TypeConverter" /> to use
+        /// Specifies the <see cref="ITypeConverter" /> to use
         /// when converting the property/field to and from a CSV field.
         /// </summary>
         /// <param name="typeConverter">The TypeConverter to use.</param>
@@ -173,16 +173,34 @@ namespace CsvHelper.Configuration
         }
 
         /// <summary>
-        /// Specifies the <see cref="TypeConverter" /> to use
+        /// Specifies the <see cref="ITypeConverter" /> to use
         /// when converting the property/field to and from a CSV field.
         /// </summary>
         /// <typeparam name="T">
         /// The <see cref="System.Type" /> of the
-        /// <see cref="TypeConverter" /> to use.
+        /// <see cref="ITypeConverter" /> to use.
         /// </typeparam>
         public virtual CsvPropertyMap TypeConverter<T>() where T : ITypeConverter
         {
             TypeConverter(ReflectionHelper.CreateInstance<T>());
+
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies the <see cref="ITypeConverter" /> to use
+        /// when converting the property/field to and from a CSV field.
+        /// </summary>
+        /// <param name="type">The type of the converter to use.</param>
+        /// <returns></returns>
+        public virtual CsvPropertyMap TypeConverter(Type type) 
+        {
+            if (!typeof(ITypeConverter).IsAssignableFrom(type))
+            {
+                throw new ArgumentException("Expected a type implementing ITypeConverter.");
+            }
+
+            TypeConverter(ReflectionHelper.CreateInstance(type) as ITypeConverter);
 
             return this;
         }

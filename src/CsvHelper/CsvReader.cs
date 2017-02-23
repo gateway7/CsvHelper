@@ -1414,11 +1414,12 @@ namespace CsvHelper
                 var method = typeof(ICsvReaderRow).GetTypeInfo().GetProperty("Item", typeof(string), new[] { typeof(int) }).GetGetMethod();
                 Expression fieldExpression = Expression.Call(Expression.Constant(this), method, Expression.Constant(index, typeof(int)));
 
-                // Preprocess the field, if necessary
-                if (propertyMap.Data.FieldPreprocessingSettings != null)
-                {
-                    fieldExpression = Expression.Call(typeof(FieldPreprocessor).GetMethod("ProcessField"), fieldExpression, Expression.Constant(propertyMap.Data.FieldPreprocessingSettings)); 
-                }
+                // Preprocess field value
+                fieldExpression = Expression.Call(
+                    typeof(FieldPreprocessor).GetMethod(nameof(FieldPreprocessor.ProcessField)), 
+                    fieldExpression, 
+                    Expression.Constant(_configuration), 
+                    Expression.Constant(propertyMap.Data.FieldPreprocessorSettings, typeof(IFieldPreprocessorSettings))); 
 
                 // Convert the field.
                 var typeConverterExpression = Expression.Constant(propertyMap.Data.TypeConverter);
@@ -1427,12 +1428,10 @@ namespace CsvHelper
                     propertyMap.Data.TypeConverterOptions.CultureInfo = _configuration.CultureInfo;
                 }
 
-                propertyMap.Data.TypeConverterOptions = TypeConverterOptions.Merge(
-                                                                                   _configuration.TypeConverterOptions.Get(propertyMap.Data.Member.MemberType()), propertyMap.Data.TypeConverterOptions);
+                propertyMap.Data.TypeConverterOptions = TypeConverterOptions.Merge(_configuration.TypeConverterOptions.Get(propertyMap.Data.Member.MemberType()), propertyMap.Data.TypeConverterOptions);
 
                 // Create type converter expression.
-                Expression typeConverterFieldExpression = Expression.Call(
-                                                                          typeConverterExpression, "ConvertFromString", null, fieldExpression, Expression.Constant(this), Expression.Constant(propertyMap.Data));
+                Expression typeConverterFieldExpression = Expression.Call(typeConverterExpression, "ConvertFromString", null, fieldExpression, Expression.Constant(this), Expression.Constant(propertyMap.Data));
                 typeConverterFieldExpression = Expression.Convert(typeConverterFieldExpression, propertyMap.Data.Member.MemberType());
 
                 if (propertyMap.Data.IsConstantSet)

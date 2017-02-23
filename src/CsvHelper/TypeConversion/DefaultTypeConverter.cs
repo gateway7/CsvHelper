@@ -47,7 +47,7 @@ namespace CsvHelper.TypeConversion
         {
             var converterOptions = row?.Configuration.TypeConverterOptions?.Get<T>() ?? propertyMapData.TypeConverterOptions;
 
-            if (converterOptions.TreatNullAsDefault && (string.IsNullOrWhiteSpace(text) || converterOptions.IsNullValue(text)))
+            if (converterOptions.TreatNullAsDefault && string.IsNullOrWhiteSpace(text))
             {
                 return default(T); 
             }
@@ -67,7 +67,7 @@ namespace CsvHelper.TypeConversion
         {
             var converterOptions = row?.Configuration.TypeConverterOptions?[type] ?? propertyMapData.TypeConverterOptions;
 
-            if (converterOptions.TreatNullAsDefault && (string.IsNullOrWhiteSpace(text) || converterOptions.IsNullValue(text)))
+            if (converterOptions.TreatNullAsDefault && string.IsNullOrWhiteSpace(text))
             {
                 return GetDefault(type); 
             }

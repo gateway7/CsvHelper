@@ -5,7 +5,7 @@
     /// <summary>
     /// Provides information on preprocessing to be performed on the CSV field after extraction.
     /// </summary>
-    public interface IFieldPreprocessingSettings
+    public interface IFieldPreprocessorSettings
     {
         /// <summary>
         /// A mandatory prefix expected to appear in the field. Absence of such will result in an exception.

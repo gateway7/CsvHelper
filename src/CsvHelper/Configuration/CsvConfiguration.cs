@@ -381,6 +381,11 @@ namespace CsvHelper.Configuration
         public virtual Action<CsvHelperException, ICsvReader> ReadingExceptionCallback { get; set; }
 
         /// <summary>
+        /// Convert empty or literal null ("NULL", "null") values to null. 
+        /// </summary>
+        public bool TranslateLiteralNulls { get; set; }
+
+        /// <summary>
         /// Builds the values for the RequiredQuoteChars property.
         /// </summary>
         private void BuildRequiredQuoteChars()
@@ -546,7 +551,12 @@ namespace CsvHelper.Configuration
                     propertyMap.NameIndex(fieldInfo.Index.Value);
                 }
 
-                propertyMap.Data.FieldPreprocessingSettings = fieldInfo;
+                if (fieldInfo.TypeConverter != null)
+                {
+                    propertyMap.TypeConverter(fieldInfo.TypeConverter);
+                }
+
+                propertyMap.Data.FieldPreprocessorSettings = fieldInfo;
 
                 map.PropertyMaps.Add(propertyMap);
             }

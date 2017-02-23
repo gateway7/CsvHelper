@@ -2,11 +2,12 @@
 {
     using System;
     using System.Text.RegularExpressions;
+    using TypeConversion;
 
     /// <summary>
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-    public class CsvFieldAttribute : Attribute, IFieldPreprocessingSettings
+    public class CsvFieldAttribute : Attribute, IFieldPreprocessorSettings
     {
         /// <summary>
         /// </summary>
@@ -15,6 +16,11 @@
         /// <summary>
         /// </summary>
         public int? Index { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public Type TypeConverter { get; set; }
 
         /// <summary>
         /// </summary>

@@ -51,9 +51,6 @@ namespace CsvHelper.Tests.TypeConversion
 
             Assert.Throws<CsvTypeConverterException>(() => converter.ConvertFromString("", null, propertyMapData));
             Assert.Throws<CsvTypeConverterException>(() => converter.ConvertFromString(null, null, propertyMapData));
-
-            propertyMapData.TypeConverterOptions.TreatNullAsDefault = true;
-            Assert.Equal(TestEnum.None, converter.ConvertFromString("null", null, propertyMapData));
         }
 
         private enum TestEnum

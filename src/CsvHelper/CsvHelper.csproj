@@ -4,7 +4,7 @@
     <Description>A library for reading and writing CSV files. Extremely fast, flexible, and easy to use. Supports reading and writing of custom class objects.</Description>
     <Copyright>Copyright � 2009-2016 Josh Close and Contributors</Copyright>
     <AssemblyTitle>CsvHelper</AssemblyTitle>
-    <VersionPrefix>3.0.0-beta11</VersionPrefix>
+    <VersionPrefix>3.0.0-beta13</VersionPrefix>
     <Authors>Josh Close</Authors>
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

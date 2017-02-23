@@ -99,6 +99,11 @@
         bool IgnoreReadingExceptions { get; set; }
 
         /// <summary>
+        /// Convert literal null ("NULL", "null") values to null. 
+        /// </summary>
+        bool TranslateLiteralNulls { get; set; }
+
+        /// <summary>
         /// Gets or sets the callback that is called when a reading
         /// exception occurs. This will only happen when
         /// <see cref="IgnoreReadingExceptions" /> is true.

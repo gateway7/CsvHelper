@@ -44,9 +44,9 @@ namespace CsvHelper.Tests.Mappings
             using (var writer = new StreamWriter(stream))
             using (var csv = new CsvReader(reader))
             {
-                writer.WriteLine("id,item_id,name,model_type,title,desc");
+                writer.WriteLine("id,item_id,name,model_type,validity,title,desc");
 
-                writer.WriteLine(@"1,ID101,TestSet,TR_proton57,""new title~1972"",125with some text200");
+                writer.WriteLine(@"1,ID101,TestSet,TR_proton57,yup,""new title~1972"",125with some text200");
                 writer.Flush();
                 stream.Position = 0;
 
@@ -57,6 +57,7 @@ namespace CsvHelper.Tests.Mappings
                 Assert.True(records.Any());
                 Assert.Equal(101, records[0].Id);
                 Assert.Equal("TR_proton", records[0].Type);
+                Assert.True(records[0].IsValid);
                 Assert.Equal("title", records[0].Name);
                 Assert.Equal("125.200", records[0].Desription);
             }
@@ -212,8 +213,19 @@ namespace CsvHelper.Tests.Mappings
             [CsvField("model_type", ExpectedPrefix = "TR_", TrimEnd = 2)]
             public string Type { get; set; }
 
+            [CsvField("validity", TypeConverter = typeof(CoolBooleanTypeConverter))]
+            public bool IsValid { get; set; }
+
             [CsvField("desc", @"(\d+)[^\d]+(\d+)", "$1.$2")]
             public string Desription { get; set; }
+        }
+
+        private class CoolBooleanTypeConverter : DefaultTypeConverter
+        {
+            public override object ConvertFromString(string text, ICsvReaderRow row, CsvPropertyMapData propertyMapData)
+            {
+                return text == "yup";
+            }
         }
 
         private class TestClass

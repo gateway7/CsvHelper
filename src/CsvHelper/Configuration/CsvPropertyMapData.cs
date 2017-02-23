@@ -103,7 +103,7 @@ namespace CsvHelper.Configuration
         /// <summary>
         /// Gets or sets additional field processing instructions, that can be specified in CSV model annotations.
         /// </summary>
-        public IFieldPreprocessingSettings FieldPreprocessingSettings { get; set; }
+        public IFieldPreprocessorSettings FieldPreprocessorSettings { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CsvPropertyMapData" /> class.

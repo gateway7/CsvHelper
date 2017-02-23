@@ -42,12 +42,14 @@
 
                 stream.Position = 0;
                 csv.Configuration.HasHeaderRecord = false;
+                csv.Configuration.TranslateLiteralNulls = false;
                 csv.Configuration.TypeConverterOptions.Default.TreatNullAsDefault = false;
 
                 Assert.Throws<CsvTypeConverterException>(() => csv.GetRecords<NullTest>().ToList());
 
                 stream.Position = 0;
                 csv.Configuration.TypeConverterOptions.Clear();
+                csv.Configuration.TranslateLiteralNulls = true;
                 csv.Configuration.TypeConverterOptions.Default.TreatNullAsDefault = true;
 
                 var records = csv.GetRecords<NullTest>().ToList();
