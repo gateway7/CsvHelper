@@ -44,8 +44,9 @@ namespace CsvHelper.Tests.Mappings
             using (var writer = new StreamWriter(stream))
             using (var csv = new CsvReader(reader))
             {
-                writer.WriteLine("id,item_id,name,title");
-                writer.WriteLine(@"1,101,testtest,""new title""");
+                writer.WriteLine("id,item_id,name,model_type,title,desc");
+
+                writer.WriteLine(@"1,ID101,TestSet,TR_proton57,""new title~1972"",125with some text200");
                 writer.Flush();
                 stream.Position = 0;
 
@@ -55,7 +56,9 @@ namespace CsvHelper.Tests.Mappings
 
                 Assert.True(records.Any());
                 Assert.Equal(101, records[0].Id);
-                Assert.Equal("new title", records[0].Name);
+                Assert.Equal("TR_proton", records[0].Type);
+                Assert.Equal("title", records[0].Name);
+                Assert.Equal("125.200", records[0].Desription);
             }
         }
 
@@ -200,12 +203,16 @@ namespace CsvHelper.Tests.Mappings
 
         private class AnnotatedClass
         {
-            [CsvField("item_id")]
+            [CsvField("item_id", ExpectedPrefix = "ID", TrimPrefix = true)]
             public int Id { get; set; }
 
-            [CsvField("title")]
+            [CsvField("title", TrimStart = 4, ExpectedSuffix = "~1972", TrimSuffix = true)]
             public string Name { get; set; }
 
+            [CsvField("model_type", ExpectedPrefix = "TR_", TrimEnd = 2)]
+            public string Type { get; set; }
+
+            [CsvField("desc", @"(\d+)[^\d]+(\d+)", "$1.$2")]
             public string Desription { get; set; }
         }
 

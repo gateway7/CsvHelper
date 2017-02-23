@@ -18,7 +18,7 @@ namespace CsvHelper.Configuration
         /// Gets the <see cref="MemberInfo" /> that the data
         /// is associated with.
         /// </summary>
-        public virtual MemberInfo Member { get; private set; }
+        public virtual MemberInfo Member { get; }
 
         /// <summary>
         /// Gets the list of column names.
@@ -99,6 +99,11 @@ namespace CsvHelper.Configuration
         /// row to the property/field.
         /// </summary>
         public virtual Expression ConvertExpression { get; set; }
+
+        /// <summary>
+        /// Gets or sets additional field processing instructions, that can be specified in CSV model annotations.
+        /// </summary>
+        public IFieldPreprocessingSettings FieldPreprocessingSettings { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CsvPropertyMapData" /> class.

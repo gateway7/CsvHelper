@@ -21,39 +21,39 @@ namespace CsvHelper
     /// </summary>
     public class CsvReader : ICsvReader
     {
-        private readonly bool leaveOpen;
+        private readonly bool _leaveOpen;
 
-        private readonly Dictionary<string, List<int>> namedIndexes = new Dictionary<string, List<int>>();
+        private readonly Dictionary<string, List<int>> _namedIndexes = new Dictionary<string, List<int>>();
 
-        private readonly Dictionary<string, Tuple<string, int>> namedIndexCache = new Dictionary<string, Tuple<string, int>>();
+        private readonly Dictionary<string, Tuple<string, int>> _namedIndexCache = new Dictionary<string, Tuple<string, int>>();
 
-        private readonly Dictionary<Type, Delegate> recordFuncs = new Dictionary<Type, Delegate>();
+        private readonly Dictionary<Type, Delegate> _recordFuncs = new Dictionary<Type, Delegate>();
 
-        private readonly ICsvReaderConfiguration configuration;
+        private readonly ICsvReaderConfiguration _configuration;
 
-        private bool disposed;
+        private bool _disposed;
 
-        private bool hasBeenRead;
+        private bool _hasBeenRead;
 
-        private string[] currentRecord;
+        private string[] _currentRecord;
 
-        private string[] headerRecord;
+        private string[] _headerRecord;
 
-        private ICsvParser parser;
+        private ICsvParser _parser;
 
-        private int currentIndex = -1;
+        private int _currentIndex = -1;
 
-        private int columnCount;
+        private int _columnCount;
 
         /// <summary>
         /// Gets the configuration.
         /// </summary>
-        public virtual ICsvReaderConfiguration Configuration => configuration;
+        public virtual ICsvReaderConfiguration Configuration => _configuration;
 
         /// <summary>
         /// Gets the parser.
         /// </summary>
-        public virtual ICsvParser Parser => parser;
+        public virtual ICsvParser Parser => _parser;
 
         /// <summary>
         /// Gets the field headers.
@@ -62,37 +62,37 @@ namespace CsvHelper
         {
             get
             {
-                if (headerRecord == null)
+                if (_headerRecord == null)
                 {
                     throw new CsvReaderException("You must call ReadHeader or Read before accessing the field headers.");
                 }
 
-                return headerRecord;
+                return _headerRecord;
             }
         }
 
         /// <summary>
         /// Get the current record;
         /// </summary>
-        public virtual string[] CurrentRecord => currentRecord;
+        public virtual string[] CurrentRecord => _currentRecord;
 
         /// <summary>
         /// Gets the current row.
         /// </summary>
-        public int Row => parser.Row;
+        public int Row => _parser.Row;
 
         /// <summary>
         /// Creates a new CSV reader using the given <see cref="TextReader" />.
         /// </summary>
         /// <param name="reader">The reader.</param>
-        public CsvReader(TextReader reader) : this(new CsvParser(reader, new CsvConfiguration()), false) {}
+        public CsvReader(TextReader reader) : this(new CsvParser(reader, new CsvConfiguration()), false) { }
 
         /// <summary>
         /// Creates a new CSV reader using the given <see cref="TextReader" />.
         /// </summary>
         /// <param name="reader">The reader.</param>
         /// <param name="leaveOpen">true to leave the reader open after the CsvReader object is disposed, otherwise false.</param>
-        public CsvReader(TextReader reader, bool leaveOpen) : this(new CsvParser(reader, new CsvConfiguration()), leaveOpen) {}
+        public CsvReader(TextReader reader, bool leaveOpen) : this(new CsvParser(reader, new CsvConfiguration()), leaveOpen) { }
 
         /// <summary>
         /// Creates a new CSV reader using the given <see cref="TextReader" /> and
@@ -100,7 +100,7 @@ namespace CsvHelper
         /// </summary>
         /// <param name="reader">The reader.</param>
         /// <param name="configuration">The configuration.</param>
-        public CsvReader(TextReader reader, ICsvParserConfiguration configuration) : this(new CsvParser(reader, configuration), false) {}
+        public CsvReader(TextReader reader, ICsvParserConfiguration configuration) : this(new CsvParser(reader, configuration), false) { }
 
         /// <summary>
         /// Creates a new CSV reader using the given <see cref="TextReader" />.
@@ -108,13 +108,13 @@ namespace CsvHelper
         /// <param name="reader">The reader.</param>
         /// <param name="configuration">The configuration.</param>
         /// <param name="leaveOpen">true to leave the reader open after the CsvReader object is disposed, otherwise false.</param>
-        public CsvReader(TextReader reader, ICsvParserConfiguration configuration, bool leaveOpen) : this(new CsvParser(reader, configuration), leaveOpen) {}
+        public CsvReader(TextReader reader, ICsvParserConfiguration configuration, bool leaveOpen) : this(new CsvParser(reader, configuration), leaveOpen) { }
 
         /// <summary>
         /// Creates a new CSV reader using the given <see cref="ICsvParser" />.
         /// </summary>
         /// <param name="parser">The <see cref="ICsvParser" /> used to parse the CSV file.</param>
-        public CsvReader(ICsvParser parser) : this(parser, false) {}
+        public CsvReader(ICsvParser parser) : this(parser, false) { }
 
         /// <summary>
         /// Creates a new CSV reader using the given <see cref="ICsvParser" />.
@@ -138,9 +138,9 @@ namespace CsvHelper
                 throw new CsvConfigurationException("The given parser does not have a configuration that works with the reader.");
             }
 
-            this.parser = parser;
-            configuration = (ICsvReaderConfiguration)parser.Configuration;
-            this.leaveOpen = leaveOpen;
+            _parser = parser;
+            _configuration = (ICsvReaderConfiguration)parser.Configuration;
+            _leaveOpen = leaveOpen;
         }
 
         /// <summary>
@@ -149,16 +149,16 @@ namespace CsvHelper
         /// <returns>True if there are more records, otherwise false.</returns>
         public virtual bool ReadHeader()
         {
-            if (!configuration.HasHeaderRecord)
+            if (!_configuration.HasHeaderRecord)
             {
                 throw new CsvReaderException("Configuration.HasHeaderRecord is false.");
             }
 
-            headerRecord = currentRecord;
-            currentRecord = null;
+            _headerRecord = _currentRecord;
+            _currentRecord = null;
             ParseNamedIndexes();
 
-            return headerRecord != null;
+            return _headerRecord != null;
         }
 
         /// <summary>
@@ -172,23 +172,23 @@ namespace CsvHelper
         {
             do
             {
-                currentRecord = parser.Read();
+                _currentRecord = _parser.Read();
             }
             while (ShouldSkipRecord());
 
-            currentIndex = -1;
-            hasBeenRead = true;
+            _currentIndex = -1;
+            _hasBeenRead = true;
 
-            if (configuration.DetectColumnCountChanges && currentRecord != null)
+            if (_configuration.DetectColumnCountChanges && _currentRecord != null)
             {
-                if (columnCount > 0 && columnCount != currentRecord.Length)
+                if (_columnCount > 0 && _columnCount != _currentRecord.Length)
                 {
                     var csvException = new CsvBadDataException("An inconsistent number of columns has been detected.");
-                    ExceptionHelper.AddExceptionData(csvException, Row, null, currentIndex, namedIndexes, currentRecord);
+                    ExceptionHelper.AddExceptionData(csvException, Row, null, _currentIndex, _namedIndexes, _currentRecord);
 
-                    if (configuration.IgnoreReadingExceptions)
+                    if (_configuration.IgnoreReadingExceptions)
                     {
-                        configuration.ReadingExceptionCallback?.Invoke(csvException, this);
+                        _configuration.ReadingExceptionCallback?.Invoke(csvException, this);
                     }
                     else
                     {
@@ -196,10 +196,10 @@ namespace CsvHelper
                     }
                 }
 
-                columnCount = currentRecord.Length;
+                _columnCount = _currentRecord.Length;
             }
 
-            return currentRecord != null;
+            return _currentRecord != null;
         }
 
         /// <summary>
@@ -260,14 +260,14 @@ namespace CsvHelper
             // Set the current index being used so we
             // have more information if an error occurs
             // when reading records.
-            currentIndex = index;
+            _currentIndex = index;
 
-            if (index >= currentRecord.Length)
+            if (index >= _currentRecord.Length)
             {
-                if (configuration.WillThrowOnMissingField && configuration.IgnoreBlankLines)
+                if (_configuration.WillThrowOnMissingField && _configuration.IgnoreBlankLines)
                 {
                     var ex = new CsvMissingFieldException($"Field at index '{index}' does not exist.");
-                    ExceptionHelper.AddExceptionData(ex, Row, null, index, namedIndexes, currentRecord);
+                    ExceptionHelper.AddExceptionData(ex, Row, null, index, _namedIndexes, _currentRecord);
 
                     throw ex;
                 }
@@ -275,8 +275,8 @@ namespace CsvHelper
                 return default(string);
             }
 
-            var field = currentRecord[index];
-            if (configuration.TrimFields)
+            var field = _currentRecord[index];
+            if (_configuration.TrimFields)
             {
                 field = field?.Trim();
             }
@@ -294,12 +294,8 @@ namespace CsvHelper
             CheckHasBeenRead();
 
             var index = GetFieldIndex(name);
-            if (index < 0)
-            {
-                return null;
-            }
 
-            return GetField(index);
+            return index < 0 ? null : GetField(index);
         }
 
         /// <summary>
@@ -315,12 +311,8 @@ namespace CsvHelper
             CheckHasBeenRead();
 
             var fieldIndex = GetFieldIndex(name, index);
-            if (fieldIndex < 0)
-            {
-                return null;
-            }
 
-            return GetField(fieldIndex);
+            return fieldIndex < 0 ? null : GetField(fieldIndex);
         }
 
         /// <summary>
@@ -381,13 +373,15 @@ namespace CsvHelper
         {
             CheckHasBeenRead();
 
-            var propertyMapData = new CsvPropertyMapData(null)
-            {
-                Index = index,
-                TypeConverter = converter,
-                TypeConverterOptions = { CultureInfo = configuration.CultureInfo }
-            };
-            propertyMapData.TypeConverterOptions = TypeConverterOptions.Merge(configuration.TypeConverterOptions.Get(type), propertyMapData.TypeConverterOptions);
+            var propertyMapData =
+                new CsvPropertyMapData(null)
+                {
+                    Index = index,
+                    TypeConverter = converter,
+                    TypeConverterOptions = { CultureInfo = _configuration.CultureInfo }
+                };
+
+            propertyMapData.TypeConverterOptions = TypeConverterOptions.Merge(_configuration.TypeConverterOptions.Get(type), propertyMapData.TypeConverterOptions);
 
             var field = GetField(index);
             return converter.ConvertFromString(field, this, propertyMapData);
@@ -483,12 +477,12 @@ namespace CsvHelper
         {
             CheckHasBeenRead();
 
-            if (index >= currentRecord.Length || index < 0)
+            if (index >= _currentRecord.Length || index < 0)
             {
-                if (configuration.WillThrowOnMissingField)
+                if (_configuration.WillThrowOnMissingField)
                 {
                     var ex = new CsvMissingFieldException($"Field at index '{index}' does not exist.");
-                    ExceptionHelper.AddExceptionData(ex, Row, typeof(T), index, namedIndexes, currentRecord);
+                    ExceptionHelper.AddExceptionData(ex, Row, typeof(T), index, _namedIndexes, _currentRecord);
 
                     throw ex;
                 }
@@ -658,7 +652,7 @@ namespace CsvHelper
             // returning null, so we need to handle this special case.
             if (converter is DateTimeConverter)
             {
-                if (StringHelper.IsNullOrWhiteSpace(currentRecord[index]))
+                if (StringHelper.IsNullOrWhiteSpace(_currentRecord[index]))
                 {
                     field = type.GetTypeInfo().IsValueType ? ReflectionHelper.CreateInstance(type) : null;
                     return false;
@@ -931,7 +925,7 @@ namespace CsvHelper
         /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
-            Dispose(!leaveOpen);
+            Dispose(!_leaveOpen);
             GC.SuppressFinalize(this);
         }
 
@@ -941,18 +935,18 @@ namespace CsvHelper
         /// <param name="disposing">True if the instance needs to be disposed of.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (disposed)
+            if (_disposed)
             {
                 return;
             }
 
             if (disposing)
             {
-                parser?.Dispose();
+                _parser?.Dispose();
             }
 
-            disposed = true;
-            parser = null;
+            _disposed = true;
+            _parser = null;
         }
 
         /// <summary>
@@ -961,7 +955,7 @@ namespace CsvHelper
         /// <exception cref="CsvReaderException" />
         protected virtual void CheckHasBeenRead()
         {
-            if (!hasBeenRead)
+            if (!_hasBeenRead)
             {
                 throw new CsvReaderException("You must call read on the reader before accessing its data.");
             }
@@ -985,12 +979,12 @@ namespace CsvHelper
                 CheckHasBeenRead();
             }
 
-            if (currentRecord == null)
+            if (_currentRecord == null)
             {
                 return false;
             }
 
-            return currentRecord.All(GetEmtpyStringMethod());
+            return _currentRecord.All(GetEmtpyStringMethod());
         }
 
         /// <summary>
@@ -1042,26 +1036,26 @@ namespace CsvHelper
                 throw new ArgumentNullException(nameof(names));
             }
 
-            if (!configuration.HasHeaderRecord)
+            if (!_configuration.HasHeaderRecord)
             {
                 throw new CsvReaderException("There is no header record to determine the index by name.");
             }
 
             // Caching the named index speeds up mappings that use ConvertUsing tremendously.
             var nameKey = string.Join("_", names) + index;
-            if (namedIndexCache.ContainsKey(nameKey))
+            if (_namedIndexCache.ContainsKey(nameKey))
             {
-                var tuple = namedIndexCache[nameKey];
-                return namedIndexes[tuple.Item1][tuple.Item2];
+                var tuple = _namedIndexCache[nameKey];
+                return _namedIndexes[tuple.Item1][tuple.Item2];
             }
 
             string name = null;
-            foreach (var pair in namedIndexes)
+            foreach (var pair in _namedIndexes)
             {
-                var propertyName = configuration.PrepareHeaderForMatch(pair.Key);
+                var propertyName = _configuration.PrepareHeaderForMatch(pair.Key);
                 foreach (var n in names)
                 {
-                    var fieldName = configuration.PrepareHeaderForMatch(n);
+                    var fieldName = _configuration.PrepareHeaderForMatch(n);
                     if (Configuration.CultureInfo.CompareInfo.Compare(propertyName, fieldName, CompareOptions.None) == 0)
                     {
                         name = pair.Key;
@@ -1069,15 +1063,15 @@ namespace CsvHelper
                 }
             }
 
-            if (name == null || index >= namedIndexes[name].Count)
+            if (name == null || index >= _namedIndexes[name].Count)
             {
-                if (configuration.WillThrowOnMissingField && !isTryGet)
+                if (_configuration.WillThrowOnMissingField && !isTryGet)
                 {
                     // If we're in strict reading mode and the
                     // named index isn't found, throw an exception.
                     var namesJoined = $"'{string.Join("', '", names)}'";
                     var ex = new CsvMissingFieldException($"Fields {namesJoined} do not exist in the CSV file.");
-                    ExceptionHelper.AddExceptionData(ex, Row, null, currentIndex, namedIndexes, currentRecord);
+                    ExceptionHelper.AddExceptionData(ex, Row, null, _currentIndex, _namedIndexes, _currentRecord);
 
                     throw ex;
                 }
@@ -1085,9 +1079,9 @@ namespace CsvHelper
                 return -1;
             }
 
-            namedIndexCache.Add(nameKey, new Tuple<string, int>(name, index));
+            _namedIndexCache.Add(nameKey, new Tuple<string, int>(name, index));
 
-            return namedIndexes[name][index];
+            return _namedIndexes[name][index];
         }
 
         /// <summary>
@@ -1095,21 +1089,21 @@ namespace CsvHelper
         /// </summary>
         protected virtual void ParseNamedIndexes()
         {
-            if (headerRecord == null)
+            if (_headerRecord == null)
             {
                 throw new CsvReaderException("No header record was found.");
             }
 
-            for (var i = 0; i < headerRecord.Length; i++)
+            for (var i = 0; i < _headerRecord.Length; i++)
             {
-                var name = headerRecord[i];
-                if (namedIndexes.ContainsKey(name))
+                var name = _headerRecord[i];
+                if (_namedIndexes.ContainsKey(name))
                 {
-                    namedIndexes[name].Add(i);
+                    _namedIndexes[name].Add(i);
                 }
                 else
                 {
-                    namedIndexes[name] = new List<int> { i };
+                    _namedIndexes[name] = new List<int> { i };
                 }
             }
         }
@@ -1120,17 +1114,15 @@ namespace CsvHelper
         /// <returns><c>true</c> if the current record should be skipped, <c>false</c> otherwise.</returns>
         protected virtual bool ShouldSkipRecord()
         {
-            if (currentRecord == null)
+            if (_currentRecord == null)
             {
                 return false;
             }
 
-            return configuration.ShouldSkipRecord != null
-                ? configuration.ShouldSkipRecord(currentRecord) || configuration.SkipEmptyRecords && IsRecordEmpty(false)
-                : configuration.SkipEmptyRecords && IsRecordEmpty(false);
+            return _configuration.ShouldSkipRecord != null
+                ? _configuration.ShouldSkipRecord(_currentRecord) || _configuration.SkipEmptyRecords && IsRecordEmpty(false)
+                : _configuration.SkipEmptyRecords && IsRecordEmpty(false);
         }
-
-#if !NET_2_0 && !NET_3_5 && !PCL
 
         /// <summary>
         /// Creates a dynamic object from the current record.
@@ -1139,20 +1131,21 @@ namespace CsvHelper
         protected virtual dynamic CreateDynamic()
         {
             var obj = new ExpandoObject();
-            var dict = obj as IDictionary<string, object>;
-            if (headerRecord != null)
+            var dict = (IDictionary<string, object>)obj;
+
+            if (_headerRecord != null)
             {
-                var length = Math.Min(headerRecord.Length, currentRecord.Length);
+                var length = Math.Min(_headerRecord.Length, _currentRecord.Length);
                 for (var i = 0; i < length; i++)
                 {
-                    var header = headerRecord[i];
+                    var header = _headerRecord[i];
                     var field = GetField(i);
                     dict.Add(header, field);
                 }
             }
             else
             {
-                for (var i = 0; i < currentRecord.Length; i++)
+                for (var i = 0; i < _currentRecord.Length; i++)
                 {
                     var propertyName = "Field" + (i + 1);
                     var field = GetField(i);
@@ -1162,220 +1155,6 @@ namespace CsvHelper
 
             return obj;
         }
-
-#endif
-
-#if !NET_2_0
-
-        /// <summary>
-        /// Gets the record converted into <see cref="System.Type" /> T.
-        /// </summary>
-        /// <typeparam name="T">The <see cref="System.Type" /> of the record.</typeparam>
-        /// <returns>The record converted to <see cref="System.Type" /> T.</returns>
-        public virtual T GetRecord<T>()
-        {
-            CheckHasBeenRead();
-
-            if (headerRecord == null && configuration.HasHeaderRecord)
-            {
-                ReadHeader();
-
-                if (!Read())
-                {
-                    return default(T);
-                }
-            }
-
-            T record;
-            try
-            {
-                record = CreateRecord<T>();
-            }
-            catch (Exception ex)
-            {
-                var csvHelperException = ex as CsvHelperException ?? new CsvReaderException("An unexpected error occurred.", ex);
-                ExceptionHelper.AddExceptionData(csvHelperException, Row, typeof(T), currentIndex, namedIndexes, currentRecord);
-
-                throw csvHelperException;
-            }
-
-            return record;
-        }
-
-        /// <summary>
-        /// Gets the record.
-        /// </summary>
-        /// <param name="type">The <see cref="System.Type" /> of the record.</param>
-        /// <returns>The record.</returns>
-        public virtual object GetRecord(Type type)
-        {
-            CheckHasBeenRead();
-
-            if (headerRecord == null && configuration.HasHeaderRecord)
-            {
-                ReadHeader();
-
-                if (!Read())
-                {
-                    return null;
-                }
-            }
-
-            object record;
-            try
-            {
-                record = CreateRecord(type);
-            }
-            catch (Exception ex)
-            {
-                var csvHelperException = ex as CsvHelperException ?? new CsvReaderException("An unexpected error occurred.", ex);
-                ExceptionHelper.AddExceptionData(csvHelperException, Row, type, currentIndex, namedIndexes, currentRecord);
-
-                throw csvHelperException;
-            }
-
-            return record;
-        }
-
-        /// <summary>
-        /// Gets all the records in the CSV file and
-        /// converts each to <see cref="System.Type" /> T. The Read method
-        /// should not be used when using this.
-        /// </summary>
-        /// <typeparam name="T">The <see cref="System.Type" /> of the record.</typeparam>
-        /// <returns>An <see cref="IList{T}" /> of records.</returns>
-        public virtual IEnumerable<T> GetRecords<T>()
-        {
-            // Don't need to check if it's been read
-            // since we're doing the reading ourselves.
-
-            if (configuration.HasHeaderRecord && headerRecord == null)
-            {
-                if (!Read())
-                {
-                    yield break;
-                }
-
-                ReadHeader();
-            }
-
-            while (Read())
-            {
-                T record;
-                try
-                {
-                    record = CreateRecord<T>();
-                }
-                catch (Exception ex)
-                {
-                    var csvHelperException = ex as CsvHelperException ?? new CsvReaderException("An unexpected error occurred.", ex);
-                    ExceptionHelper.AddExceptionData(csvHelperException, Row, typeof(T), currentIndex, namedIndexes, currentRecord);
-
-                    if (!configuration.IgnoreReadingExceptions)
-                    {
-                        throw csvHelperException;
-                    }
-
-                    configuration.ReadingExceptionCallback?.Invoke(csvHelperException, this);
-                    continue;
-
-                    throw csvHelperException;
-                }
-
-                yield return record;
-            }
-        }
-
-        /// <summary>
-        /// Gets all the records in the CSV file and
-        /// converts each to <see cref="System.Type" /> T. The Read method
-        /// should not be used when using this.
-        /// </summary>
-        /// <param name="type">The <see cref="System.Type" /> of the record.</param>
-        /// <returns>An <see cref="IList{Object}" /> of records.</returns>
-        public virtual IEnumerable<object> GetRecords(Type type)
-        {
-            // Don't need to check if it's been read
-            // since we're doing the reading ourselves.
-
-            if (configuration.HasHeaderRecord && headerRecord == null)
-            {
-                if (!Read())
-                {
-                    yield break;
-                }
-
-                ReadHeader();
-            }
-
-            while (Read())
-            {
-                object record;
-                try
-                {
-                    record = CreateRecord(type);
-                }
-                catch (Exception ex)
-                {
-                    var csvHelperException = ex as CsvHelperException ?? new CsvReaderException("An unexpected error occurred.", ex);
-                    ExceptionHelper.AddExceptionData(csvHelperException, Row, type, currentIndex, namedIndexes, currentRecord);
-
-                    if (configuration.IgnoreReadingExceptions)
-                    {
-#if !NET_2_0
-                        configuration.ReadingExceptionCallback?.Invoke(csvHelperException, this);
-#endif
-
-                        continue;
-                    }
-
-                    throw csvHelperException;
-                }
-
-                yield return record;
-            }
-        }
-
-        /// <summary>
-        /// Clears the record cache for the given type. After <see cref="ICsvReaderRow.GetRecord{T}" /> is called the
-        /// first time, code is dynamically generated based on the <see cref="CsvPropertyMapCollection" />,
-        /// compiled, and stored for the given type T. If the <see cref="CsvPropertyMapCollection" />
-        /// changes, <see cref="ClearRecordCache{T}" /> needs to be called to update the
-        /// record cache.
-        /// </summary>
-        public virtual void ClearRecordCache<T>()
-        {
-            ClearRecordCache(typeof(T));
-        }
-
-        /// <summary>
-        /// Clears the record cache for the given type. After <see cref="ICsvReaderRow.GetRecord{T}" /> is called the
-        /// first time, code is dynamically generated based on the <see cref="CsvPropertyMapCollection" />,
-        /// compiled, and stored for the given type T. If the <see cref="CsvPropertyMapCollection" />
-        /// changes, <see cref="ClearRecordCache(System.Type)" /> needs to be called to update the
-        /// record cache.
-        /// </summary>
-        /// <param name="type">The type to invalidate.</param>
-        public virtual void ClearRecordCache(Type type)
-        {
-            recordFuncs.Remove(type);
-        }
-
-        /// <summary>
-        /// Clears the record cache for all types. After <see cref="ICsvReaderRow.GetRecord{T}" /> is called the
-        /// first time, code is dynamically generated based on the <see cref="CsvPropertyMapCollection" />,
-        /// compiled, and stored for the given type T. If the <see cref="CsvPropertyMapCollection" />
-        /// changes, <see cref="ClearRecordCache()" /> needs to be called to update the
-        /// record cache.
-        /// </summary>
-        public virtual void ClearRecordCache()
-        {
-            recordFuncs.Clear();
-        }
-
-#endif
-
-#if !NET_2_0
 
         /// <summary>
         /// Creates the record for the given type.
@@ -1436,7 +1215,7 @@ namespace CsvHelper
             var recordType = typeof(T);
             CreateReadRecordFunc(recordType);
 
-            return (Func<T>)recordFuncs[recordType];
+            return (Func<T>)_recordFuncs[recordType];
         }
 
         /// <summary>
@@ -1452,7 +1231,7 @@ namespace CsvHelper
         {
             CreateReadRecordFunc(recordType);
 
-            return recordFuncs[recordType];
+            return _recordFuncs[recordType];
         }
 
         /// <summary>
@@ -1462,14 +1241,14 @@ namespace CsvHelper
         /// <param name="recordType">Type of the record.</param>
         protected virtual void CreateReadRecordFunc(Type recordType)
         {
-            if (recordFuncs.ContainsKey(recordType))
+            if (_recordFuncs.ContainsKey(recordType))
             {
                 return;
             }
 
-            if (configuration.Maps[recordType] == null)
+            if (_configuration.Maps[recordType] == null)
             {
-                configuration.Maps.Add(configuration.AutoMap(recordType));
+                _configuration.Maps.Add(_configuration.AutoMap(recordType));
             }
 
             if (recordType.GetTypeInfo().IsPrimitive)
@@ -1490,7 +1269,7 @@ namespace CsvHelper
         {
             var bindings = new List<MemberBinding>();
 
-            CreatePropertyBindingsForMapping(configuration.Maps[recordType], recordType, bindings);
+            CreatePropertyBindingsForMapping(_configuration.Maps[recordType], recordType, bindings);
 
             if (bindings.Count == 0)
             {
@@ -1498,10 +1277,11 @@ namespace CsvHelper
             }
 
             Expression body;
-            var constructorExpression = configuration.Maps[recordType].Constructor;
-            if (constructorExpression is NewExpression)
+            var constructorExpression = _configuration.Maps[recordType].Constructor;
+
+            if (constructorExpression is NewExpression expression)
             {
-                body = Expression.MemberInit((NewExpression)constructorExpression, bindings);
+                body = Expression.MemberInit(expression, bindings);
             }
             else if (constructorExpression is MemberInitExpression memberInitExpression)
             {
@@ -1515,7 +1295,7 @@ namespace CsvHelper
             }
 
             var funcType = typeof(Func<>).MakeGenericType(recordType);
-            recordFuncs[recordType] = Expression.Lambda(funcType, body).Compile();
+            _recordFuncs[recordType] = Expression.Lambda(funcType, body).Compile();
         }
 
         /// <summary>
@@ -1531,16 +1311,15 @@ namespace CsvHelper
             {
                 Index = 0,
                 TypeConverter = TypeConverterFactory.GetConverter(recordType),
-                TypeConverterOptions = { CultureInfo = configuration.CultureInfo }
+                TypeConverterOptions = { CultureInfo = _configuration.CultureInfo }
             };
-            propertyMapData.TypeConverterOptions = TypeConverterOptions.Merge(configuration.TypeConverterOptions.Get(recordType), propertyMapData.TypeConverterOptions);
+            propertyMapData.TypeConverterOptions = TypeConverterOptions.Merge(_configuration.TypeConverterOptions.Get(recordType), propertyMapData.TypeConverterOptions);
 
-            fieldExpression = Expression.Call(
-                                              Expression.Constant(propertyMapData.TypeConverter), "ConvertFromString", null, fieldExpression, Expression.Constant(this), Expression.Constant(propertyMapData));
+            fieldExpression = Expression.Call(Expression.Constant(propertyMapData.TypeConverter), "ConvertFromString", null, fieldExpression, Expression.Constant(this), Expression.Constant(propertyMapData));
             fieldExpression = Expression.Convert(fieldExpression, recordType);
 
             var funcType = typeof(Func<>).MakeGenericType(recordType);
-            recordFuncs[recordType] = Expression.Lambda(funcType, fieldExpression).Compile();
+            _recordFuncs[recordType] = Expression.Lambda(funcType, fieldExpression).Compile();
         }
 
         /// <summary>
@@ -1565,9 +1344,10 @@ namespace CsvHelper
 
                 Expression referenceBody;
                 var constructorExpression = referenceMap.Data.Mapping.Constructor;
-                if (constructorExpression is NewExpression)
+
+                if (constructorExpression is NewExpression expression)
                 {
-                    referenceBody = Expression.MemberInit((NewExpression)constructorExpression, referenceBindings);
+                    referenceBody = Expression.MemberInit(expression, referenceBindings);
                 }
                 else if (constructorExpression is MemberInitExpression memberInitExpression)
                 {
@@ -1614,7 +1394,7 @@ namespace CsvHelper
                 }
 
                 int index;
-                if (propertyMap.Data.IsNameSet || configuration.HasHeaderRecord && !propertyMap.Data.IsIndexSet)
+                if (propertyMap.Data.IsNameSet || _configuration.HasHeaderRecord && !propertyMap.Data.IsIndexSet)
                 {
                     // Use the name.
                     index = GetFieldIndex(propertyMap.Data.Names.ToArray(), propertyMap.Data.NameIndex);
@@ -1634,15 +1414,21 @@ namespace CsvHelper
                 var method = typeof(ICsvReaderRow).GetTypeInfo().GetProperty("Item", typeof(string), new[] { typeof(int) }).GetGetMethod();
                 Expression fieldExpression = Expression.Call(Expression.Constant(this), method, Expression.Constant(index, typeof(int)));
 
+                // Preprocess the field, if necessary
+                if (propertyMap.Data.FieldPreprocessingSettings != null)
+                {
+                    fieldExpression = Expression.Call(typeof(FieldPreprocessor).GetMethod("ProcessField"), fieldExpression, Expression.Constant(propertyMap.Data.FieldPreprocessingSettings)); 
+                }
+
                 // Convert the field.
                 var typeConverterExpression = Expression.Constant(propertyMap.Data.TypeConverter);
                 if (propertyMap.Data.TypeConverterOptions.CultureInfo == null)
                 {
-                    propertyMap.Data.TypeConverterOptions.CultureInfo = configuration.CultureInfo;
+                    propertyMap.Data.TypeConverterOptions.CultureInfo = _configuration.CultureInfo;
                 }
 
                 propertyMap.Data.TypeConverterOptions = TypeConverterOptions.Merge(
-                                                                                   configuration.TypeConverterOptions.Get(propertyMap.Data.Member.MemberType()), propertyMap.Data.TypeConverterOptions);
+                                                                                   _configuration.TypeConverterOptions.Get(propertyMap.Data.Member.MemberType()), propertyMap.Data.TypeConverterOptions);
 
                 // Create type converter expression.
                 Expression typeConverterFieldExpression = Expression.Call(
@@ -1695,7 +1481,7 @@ namespace CsvHelper
 
                            // Properties that don't have a public setter
                            // and we are honoring the accessor modifier.
-                           property.GetSetMethod() == null && !configuration.IncludePrivateMembers ||
+                           property.GetSetMethod() == null && !_configuration.IncludePrivateMembers ||
 
                            // Properties that don't have a setter at all.
                            property.GetSetMethod(true) == null;
@@ -1720,7 +1506,7 @@ namespace CsvHelper
 
                     // Properties that don't have a public setter
                     // and we are honoring the accessor modifier.
-                    property.GetSetMethod() == null && !configuration.IncludePrivateMembers ||
+                    property.GetSetMethod() == null && !_configuration.IncludePrivateMembers ||
 
                     // Properties that don't have a setter at all.
                     property.GetSetMethod(true) == null;
@@ -1729,6 +1515,206 @@ namespace CsvHelper
             return !cantRead;
         }
 
-#endif
+        /// <summary>
+        /// Gets the record converted into <see cref="System.Type" /> T.
+        /// </summary>
+        /// <typeparam name="T">The <see cref="System.Type" /> of the record.</typeparam>
+        /// <returns>The record converted to <see cref="System.Type" /> T.</returns>
+        public virtual T GetRecord<T>()
+        {
+            CheckHasBeenRead();
+
+            if (_headerRecord == null && _configuration.HasHeaderRecord)
+            {
+                ReadHeader();
+
+                if (!Read())
+                {
+                    return default(T);
+                }
+            }
+
+            T record;
+            try
+            {
+                record = CreateRecord<T>();
+            }
+            catch (Exception ex)
+            {
+                var csvHelperException = ex as CsvHelperException ?? new CsvReaderException("An unexpected error occurred.", ex);
+                ExceptionHelper.AddExceptionData(csvHelperException, Row, typeof(T), _currentIndex, _namedIndexes, _currentRecord);
+
+                throw csvHelperException;
+            }
+
+            return record;
+        }
+
+        /// <summary>
+        /// Gets the record.
+        /// </summary>
+        /// <param name="type">The <see cref="System.Type" /> of the record.</param>
+        /// <returns>The record.</returns>
+        public virtual object GetRecord(Type type)
+        {
+            CheckHasBeenRead();
+
+            if (_headerRecord == null && _configuration.HasHeaderRecord)
+            {
+                ReadHeader();
+
+                if (!Read())
+                {
+                    return null;
+                }
+            }
+
+            object record;
+            try
+            {
+                record = CreateRecord(type);
+            }
+            catch (Exception ex)
+            {
+                var csvHelperException = ex as CsvHelperException ?? new CsvReaderException("An unexpected error occurred.", ex);
+                ExceptionHelper.AddExceptionData(csvHelperException, Row, type, _currentIndex, _namedIndexes, _currentRecord);
+
+                throw csvHelperException;
+            }
+
+            return record;
+        }
+
+        /// <summary>
+        /// Gets all the records in the CSV file and
+        /// converts each to <see cref="System.Type" /> T. The Read method
+        /// should not be used when using this.
+        /// </summary>
+        /// <typeparam name="T">The <see cref="System.Type" /> of the record.</typeparam>
+        /// <returns>An <see cref="IList{T}" /> of records.</returns>
+        public virtual IEnumerable<T> GetRecords<T>()
+        {
+            // Don't need to check if it's been read
+            // since we're doing the reading ourselves.
+
+            if (_configuration.HasHeaderRecord && _headerRecord == null)
+            {
+                if (!Read())
+                {
+                    yield break;
+                }
+
+                ReadHeader();
+            }
+
+            while (Read())
+            {
+                T record;
+                try
+                {
+                    record = CreateRecord<T>();
+                }
+                catch (Exception ex)
+                {
+                    var csvHelperException = ex as CsvHelperException ?? new CsvReaderException("An unexpected error occurred.", ex);
+                    ExceptionHelper.AddExceptionData(csvHelperException, Row, typeof(T), _currentIndex, _namedIndexes, _currentRecord);
+
+                    if (!_configuration.IgnoreReadingExceptions)
+                    {
+                        throw csvHelperException;
+                    }
+
+                    _configuration.ReadingExceptionCallback?.Invoke(csvHelperException, this);
+                    continue;
+                }
+
+                yield return record;
+            }
+        }
+
+        /// <summary>
+        /// Gets all the records in the CSV file and
+        /// converts each to <see cref="System.Type" /> T. The Read method
+        /// should not be used when using this.
+        /// </summary>
+        /// <param name="type">The <see cref="System.Type" /> of the record.</param>
+        /// <returns>An <see cref="IList{Object}" /> of records.</returns>
+        public virtual IEnumerable<object> GetRecords(Type type)
+        {
+            // Don't need to check if it's been read
+            // since we're doing the reading ourselves.
+
+            if (_configuration.HasHeaderRecord && _headerRecord == null)
+            {
+                if (!Read())
+                {
+                    yield break;
+                }
+
+                ReadHeader();
+            }
+
+            while (Read())
+            {
+                object record;
+                try
+                {
+                    record = CreateRecord(type);
+                }
+                catch (Exception ex)
+                {
+                    var csvHelperException = ex as CsvHelperException ?? new CsvReaderException("An unexpected error occurred.", ex);
+                    ExceptionHelper.AddExceptionData(csvHelperException, Row, type, _currentIndex, _namedIndexes, _currentRecord);
+
+                    if (_configuration.IgnoreReadingExceptions)
+                    {
+                        _configuration.ReadingExceptionCallback?.Invoke(csvHelperException, this);
+
+                        continue;
+                    }
+
+                    throw csvHelperException;
+                }
+
+                yield return record;
+            }
+        }
+
+        /// <summary>
+        /// Clears the record cache for the given type. After <see cref="ICsvReaderRow.GetRecord{T}" /> is called the
+        /// first time, code is dynamically generated based on the <see cref="CsvPropertyMapCollection" />,
+        /// compiled, and stored for the given type T. If the <see cref="CsvPropertyMapCollection" />
+        /// changes, <see cref="ClearRecordCache{T}" /> needs to be called to update the
+        /// record cache.
+        /// </summary>
+        public virtual void ClearRecordCache<T>()
+        {
+            ClearRecordCache(typeof(T));
+        }
+
+        /// <summary>
+        /// Clears the record cache for the given type. After <see cref="ICsvReaderRow.GetRecord{T}" /> is called the
+        /// first time, code is dynamically generated based on the <see cref="CsvPropertyMapCollection" />,
+        /// compiled, and stored for the given type T. If the <see cref="CsvPropertyMapCollection" />
+        /// changes, <see cref="ClearRecordCache(System.Type)" /> needs to be called to update the
+        /// record cache.
+        /// </summary>
+        /// <param name="type">The type to invalidate.</param>
+        public virtual void ClearRecordCache(Type type)
+        {
+            _recordFuncs.Remove(type);
+        }
+
+        /// <summary>
+        /// Clears the record cache for all types. After <see cref="ICsvReaderRow.GetRecord{T}" /> is called the
+        /// first time, code is dynamically generated based on the <see cref="CsvPropertyMapCollection" />,
+        /// compiled, and stored for the given type T. If the <see cref="CsvPropertyMapCollection" />
+        /// changes, <see cref="ClearRecordCache()" /> needs to be called to update the
+        /// record cache.
+        /// </summary>
+        public virtual void ClearRecordCache()
+        {
+            _recordFuncs.Clear();
+        }
     }
 }

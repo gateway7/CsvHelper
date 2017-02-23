@@ -546,6 +546,8 @@ namespace CsvHelper.Configuration
                     propertyMap.NameIndex(fieldInfo.Index.Value);
                 }
 
+                propertyMap.Data.FieldPreprocessingSettings = fieldInfo;
+
                 map.PropertyMaps.Add(propertyMap);
             }
 
