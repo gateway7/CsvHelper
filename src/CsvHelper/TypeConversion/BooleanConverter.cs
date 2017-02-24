@@ -52,7 +52,7 @@ namespace CsvHelper.TypeConversion
                 return false;
             }
 
-            return base.ConvertFromString(text, row, propertyMapData);
+            return base.ConvertFromString<bool>(text, row, propertyMapData);
         }
     }
 }

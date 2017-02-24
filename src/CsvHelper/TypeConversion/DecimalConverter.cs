@@ -24,7 +24,7 @@ namespace CsvHelper.TypeConversion
         {
             var numberStyle = propertyMapData.TypeConverterOptions.NumberStyle ?? NumberStyles.Float;
 
-            return decimal.TryParse(text, numberStyle, propertyMapData.TypeConverterOptions.CultureInfo, out decimal d) ? d : base.ConvertFromString(text, row, propertyMapData);
+            return decimal.TryParse(text, numberStyle, propertyMapData.TypeConverterOptions.CultureInfo, out decimal value) ? value : base.ConvertFromString<decimal>(text, row, propertyMapData);
         }
     }
 }

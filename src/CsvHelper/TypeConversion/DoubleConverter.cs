@@ -24,7 +24,7 @@ namespace CsvHelper.TypeConversion
         {
             var numberStyle = propertyMapData.TypeConverterOptions.NumberStyle ?? NumberStyles.Float;
 
-            return double.TryParse(text, numberStyle, propertyMapData.TypeConverterOptions.CultureInfo, out double d) ? d : base.ConvertFromString(text, row, propertyMapData);
+            return double.TryParse(text, numberStyle, propertyMapData.TypeConverterOptions.CultureInfo, out double value) ? value : base.ConvertFromString<double>(text, row, propertyMapData);
         }
     }
 }

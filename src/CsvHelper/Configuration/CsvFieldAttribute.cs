@@ -2,7 +2,6 @@
 {
     using System;
     using System.Text.RegularExpressions;
-    using TypeConversion;
 
     /// <summary>
     /// </summary>
@@ -18,7 +17,6 @@
         public int? Index { get; set; }
 
         /// <summary>
-        /// 
         /// </summary>
         public Type TypeConverter { get; set; }
 
@@ -39,7 +37,6 @@
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="name"></param>
         /// <param name="regexMatchPattern"></param>
@@ -50,7 +47,6 @@
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="index"></param>
         /// <param name="regexMatchPattern"></param>
@@ -81,22 +77,24 @@
         public bool TrimSuffix { get; set; }
 
         /// <summary>
-        /// The amount of characters to trim from the beginning of the firld. Cannot be specified together with <see cref="TrimPrefix" />.
+        /// The amount of characters to trim from the beginning of the firld. Cannot be specified together with
+        /// <see cref="TrimPrefix" />.
         /// </summary>
         public int TrimStart { get; set; }
 
         /// <summary>
-        /// The amount of characters to trim from the end of the field. Cannot be specified together with <see cref="TrimSuffix" />.
+        /// The amount of characters to trim from the end of the field. Cannot be specified together with <see cref="TrimSuffix" />
+        /// .
         /// </summary>
         public int TrimEnd { get; set; }
 
         /// <summary>
-        /// The [pattern] (second) argument in <see cref="Regex.Replace(string, string, string)"/>
+        /// The [pattern] (second) argument in <see cref="Regex.Replace(string, string, string)" />
         /// </summary>
         public string RegexMatchPattern { get; private set; }
 
         /// <summary>
-        /// The [replacement] (third) argument in <see cref="Regex.Replace(string, string, string)"/>
+        /// The [replacement] (third) argument in <see cref="Regex.Replace(string, string, string)" />
         /// </summary>
         public string RegexReplacementPattern { get; private set; }
 

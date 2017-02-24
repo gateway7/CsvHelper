@@ -24,12 +24,7 @@ namespace CsvHelper.TypeConversion
         {
             var numberStyle = propertyMapData.TypeConverterOptions.NumberStyle ?? NumberStyles.Integer;
 
-            if (sbyte.TryParse(text, numberStyle, propertyMapData.TypeConverterOptions.CultureInfo, out sbyte sb))
-            {
-                return sb;
-            }
-
-            return base.ConvertFromString(text, row, propertyMapData);
+            return sbyte.TryParse(text, numberStyle, propertyMapData.TypeConverterOptions.CultureInfo, out sbyte result) ? result : base.ConvertFromString<sbyte>(text, row, propertyMapData);
         }
     }
 }

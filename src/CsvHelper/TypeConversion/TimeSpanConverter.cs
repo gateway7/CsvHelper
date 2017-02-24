@@ -25,7 +25,6 @@ namespace CsvHelper.TypeConversion
         {
             var formatProvider = (IFormatProvider)propertyMapData.TypeConverterOptions.CultureInfo;
 
-#if !NET_2_0 && !NET_3_5 && !PCL
             var timeSpanStyle = propertyMapData.TypeConverterOptions.TimeSpanStyle ?? TimeSpanStyles.None;
             if (!string.IsNullOrEmpty(propertyMapData.TypeConverterOptions.Format) && TimeSpan.TryParseExact(text, propertyMapData.TypeConverterOptions.Format, formatProvider, timeSpanStyle, out TimeSpan span))
             {
@@ -36,14 +35,8 @@ namespace CsvHelper.TypeConversion
             {
                 return span;
             }
-#else
-			if( TimeSpan.TryParse( text, out span ) )
-			{
-				return span;
-			}
-#endif
 
-            return base.ConvertFromString(text, row, propertyMapData);
+            return base.ConvertFromString<TimeSpan>(text, row, propertyMapData);
         }
     }
 }

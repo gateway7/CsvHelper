@@ -953,6 +953,11 @@ namespace CsvHelper.Tests
             {
                 throw new NotImplementedException();
             }
+
+            public object ConvertFromString(Type type, string text, ICsvReaderRow row, CsvPropertyMapData propertyMapData)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         private class Person
