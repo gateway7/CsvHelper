@@ -6,7 +6,6 @@
 namespace CsvHelper.Tests.Mappings
 {
     using System;
-    using System.IO;
     using System.Linq;
     using CsvHelper.Configuration;
     using CsvHelper.TypeConversion;
@@ -34,33 +33,6 @@ namespace CsvHelper.Tests.Mappings
             Assert.Equal("StringColumn", map.PropertyMaps[2].Data.Names.FirstOrDefault());
             Assert.Equal(2, map.PropertyMaps[2].Data.Index);
             Assert.Equal(typeof(StringConverter), map.PropertyMaps[2].Data.TypeConverter.GetType());
-        }
-
-        [Fact]
-        public void MapAnnotatedTest()
-        {
-            using (var stream = new MemoryStream())
-            using (var reader = new StreamReader(stream))
-            using (var writer = new StreamWriter(stream))
-            using (var csv = new CsvReader(reader))
-            {
-                writer.WriteLine("id,item_id,name,model_type,validity,title,desc");
-
-                writer.WriteLine(@"1,ID101,TestSet,TR_proton57,yup,""new title~1972"",125with some text200");
-                writer.Flush();
-                stream.Position = 0;
-
-                csv.Configuration.RegisterClass<AnnotatedClass>();
-
-                var records = csv.GetRecords<AnnotatedClass>().ToList();
-
-                Assert.True(records.Any());
-                Assert.Equal(101, records[0].Id);
-                Assert.Equal("TR_proton", records[0].Type);
-                Assert.True(records[0].IsValid);
-                Assert.Equal("title", records[0].Name);
-                Assert.Equal("125.200", records[0].Desription);
-            }
         }
 
         [Fact]
@@ -202,32 +174,6 @@ namespace CsvHelper.Tests.Mappings
             }
         }
 
-        private class AnnotatedClass
-        {
-            [CsvField("item_id", ExpectedPrefix = "ID", TrimPrefix = true)]
-            public int Id { get; set; }
-
-            [CsvField("title", TrimStart = 4, ExpectedSuffix = "~1972", TrimSuffix = true)]
-            public string Name { get; set; }
-
-            [CsvField("model_type", ExpectedPrefix = "TR_", TrimEnd = 2)]
-            public string Type { get; set; }
-
-            [CsvField("validity", TypeConverter = typeof(CoolBooleanTypeConverter))]
-            public bool IsValid { get; set; }
-
-            [CsvField("desc", @"(\d+)[^\d]+(\d+)", "$1.$2")]
-            public string Desription { get; set; }
-        }
-
-        private class CoolBooleanTypeConverter : DefaultTypeConverter
-        {
-            public override object ConvertFromString(string text, ICsvReaderRow row, CsvPropertyMapData propertyMapData)
-            {
-                return text == "yup";
-            }
-        }
-
         private class TestClass
         {
             public string StringColumn { get; }
@@ -238,7 +184,7 @@ namespace CsvHelper.Tests.Mappings
 
             public string NotUsedColumn { get; set; }
 
-            public TestClass() {}
+            public TestClass() { }
 
             public TestClass(string stringColumn)
             {

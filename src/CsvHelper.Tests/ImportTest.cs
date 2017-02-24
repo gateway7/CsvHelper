@@ -218,7 +218,7 @@ namespace CsvHelper.Tests
             /// URL: http://www.hmdb.ca/metabolites/HMDB[N5]
             /// TODO: convert to type Int16 and extract [N5] 
             /// </summary>
-            [CsvField("hmdb_id", ExpectedPrefix = "HMDB", TrimPrefix = true)]
+            [CsvField("hmdb_id", Prefix = "HMDB", TrimPrefix = true)]
             public short HmdbId { get; set; }
 
             [CsvField("duke_id")]

@@ -25,7 +25,7 @@
 
             if (fieldPreprocessorSettings.RegexMatchPattern != null)
             {
-                if (fieldPreprocessorSettings.ExpectedPrefix != null || fieldPreprocessorSettings.ExpectedSuffix != null || fieldPreprocessorSettings.TrimStart > 0 || fieldPreprocessorSettings.TrimEnd > 0)
+                if (fieldPreprocessorSettings.Prefix != null || fieldPreprocessorSettings.Suffix != null || fieldPreprocessorSettings.TrimStart > 0 || fieldPreprocessorSettings.TrimEnd > 0)
                 {
                     throw new CsvConfigurationException("Regex replacement cannot be used in conjunction with other preprocessing methods.");
                 }
@@ -35,29 +35,47 @@
                 return value;
             }
 
-            if (fieldPreprocessorSettings.ExpectedPrefix != null)
+            if (fieldPreprocessorSettings.Prefix != null)
             {
-                if (!value.StartsWith(fieldPreprocessorSettings.ExpectedPrefix))
+                bool HasPrefix() => value.StartsWith(fieldPreprocessorSettings.Prefix);
+
+                bool? hasPrefix = null;
+
+                if (fieldPreprocessorSettings.IsPrefixMandatory)
                 {
-                    throw new CsvBadDataException($"Expected field prefix {fieldPreprocessorSettings.ExpectedPrefix} in ...");
+                    hasPrefix = HasPrefix();
+
+                    if (!hasPrefix.GetValueOrDefault(false))
+                    {
+                        throw new CsvBadDataException($"Expected field prefix [{fieldPreprocessorSettings.Prefix}] in [{value}].");
+                    }
                 }
 
-                if (fieldPreprocessorSettings.TrimPrefix)
+                if (fieldPreprocessorSettings.TrimPrefix && (hasPrefix.GetValueOrDefault(false) || HasPrefix()))
                 {
-                    value = value.Remove(0, fieldPreprocessorSettings.ExpectedPrefix.Length);
+                    value = value.Remove(0, fieldPreprocessorSettings.Prefix.Length);
                 }
             }
 
-            if (fieldPreprocessorSettings.ExpectedSuffix != null)
+            if (fieldPreprocessorSettings.Suffix != null)
             {
-                if (!value.EndsWith(fieldPreprocessorSettings.ExpectedSuffix))
+                bool HasSuffix() => value.EndsWith(fieldPreprocessorSettings.Suffix);
+
+                bool? hasSuffix = null;
+
+                if (fieldPreprocessorSettings.IsSuffixMandatory)
                 {
-                    throw new CsvBadDataException($"Expected field suffix {fieldPreprocessorSettings.ExpectedSuffix} in ...");
+                    hasSuffix = HasSuffix();
+
+                    if (!hasSuffix.GetValueOrDefault(false))
+                    {
+                        throw new CsvBadDataException($"Expected field suffix [{fieldPreprocessorSettings.Suffix}] in [{value}].");
+                    }
                 }
 
-                if (fieldPreprocessorSettings.TrimSuffix)
+                if (fieldPreprocessorSettings.TrimSuffix && (hasSuffix.GetValueOrDefault(false) || HasSuffix()))
                 {
-                    value = value.Substring(0, value.Length - fieldPreprocessorSettings.ExpectedSuffix.Length);
+                    value = value.Substring(0, value.Length - fieldPreprocessorSettings.Suffix.Length);
                 }
             }
 

@@ -8,22 +8,36 @@
     public interface IFieldPreprocessorSettings
     {
         /// <summary>
-        /// A mandatory prefix expected to appear in the field. Absence of such will result in an exception.
+        /// An optional prefix expected to appear in the field. Set <see cref="IsPrefixMandatory"/> to true, is the prefix is mandatory.
         /// </summary>
-        string ExpectedPrefix { get; set; }
+        string Prefix { get; set; }
 
         /// <summary>
-        /// A mandatory suffix expected to appear in the field. Absence of such will result in an exception.
+        /// If true, the value of <see cref="Prefix"/> must be defined. Absence 
+        /// of the latter in the field value will result in an exception.
+        /// Defaults to false.
         /// </summary>
-        string ExpectedSuffix { get; set; }
+        bool IsPrefixMandatory { get; set; }
 
         /// <summary>
-        /// Instructs the parser to trim <see cref="ExpectedPrefix" />, if such was specified.
+        /// If true, trims the prefix value defined in <see cref="Prefix" />.
         /// </summary>
         bool TrimPrefix { get; set; }
 
         /// <summary>
-        /// Instructs the parser to trim <see cref="ExpectedSuffix" />, if such was specified.
+        /// An optional suffix expected to appear in the field. Set <see cref="IsPrefixMandatory"/> to true, is the prefix is mandatory.
+        /// </summary>
+        string Suffix { get; set; }
+
+        /// <summary>
+        /// If true, the value of <see cref="Suffix"/> must be defined. Absence 
+        /// of the latter in the field value will result in an exception.
+        /// Defaults to false.
+        /// </summary>
+        bool IsSuffixMandatory { get; set; }
+
+        /// <summary>
+        /// If true, trims the suffix value defined in <see cref="Suffix" />.
         /// </summary>
         bool TrimSuffix { get; set; }
 
