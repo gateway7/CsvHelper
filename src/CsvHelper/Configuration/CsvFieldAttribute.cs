@@ -93,7 +93,7 @@
         public bool TrimSuffix { get; set; }
 
         /// <summary>
-        /// The amount of characters to trim from the beginning of the firld. Cannot be specified together with
+        /// The amount of characters to trim from the beginning of the field. Cannot be specified together with
         /// <see cref="TrimPrefix" />.
         /// </summary>
         public int TrimStart { get; set; }
