@@ -45,14 +45,16 @@ namespace CsvHelper.TypeConversion
         /// <returns>The object created from the string.</returns>
         public virtual T ConvertFromString<T>(string text, ICsvReaderRow row, CsvPropertyMapData propertyMapData)
         {
-            var converterOptions = row?.Configuration.TypeConverterOptions?.Get<T>() ?? propertyMapData.TypeConverterOptions;
+            return (T)ConvertFromString(typeof(T), text, row, propertyMapData);
 
-            if (converterOptions.TreatNullAsDefault && string.IsNullOrWhiteSpace(text))
-            {
-                return default(T); 
-            }
+            //var converterOptions = row?.Configuration.TypeConverterOptions?.Get<T>() ?? propertyMapData.TypeConverterOptions;
 
-            throw new CsvTypeConverterException("The conversion cannot be performed.");
+            //if (converterOptions.TreatNullAsDefault && string.IsNullOrWhiteSpace(text))
+            //{
+            //    return default(T); 
+            //}
+
+            //throw new CsvTypeConverterException("The conversion cannot be performed.");
         }
 
         /// <summary>

@@ -384,7 +384,11 @@ namespace CsvHelper
             propertyMapData.TypeConverterOptions = TypeConverterOptions.Merge(_configuration.TypeConverterOptions.Get(type), propertyMapData.TypeConverterOptions);
 
             var field = GetField(index);
-            return converter.ConvertFromString(type, field, this, propertyMapData);
+
+            return
+                converter.GetType() == typeof(DefaultTypeConverter)
+                    ? converter.ConvertFromString(type, field, this, propertyMapData)
+                    : converter.ConvertFromString(field, this, propertyMapData);
         }
 
         /// <summary>
