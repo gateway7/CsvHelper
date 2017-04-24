@@ -103,7 +103,7 @@
 
         /// <summary>
         /// Gets or sets a value indicating the if the CSV
-        /// file contains the Excel "sep=delimeter" config
+        /// file contains the Excel "sep=delimiter" config
         /// option in the first row.
         /// </summary>
         bool HasExcelSeparator { get; set; }

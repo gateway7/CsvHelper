@@ -62,18 +62,8 @@ namespace CsvHelper
         /// <param name="leaveOpen">true to leave the reader open after the CsvReader object is disposed, otherwise false.</param>
         public CsvSerializer(TextWriter writer, ICsvSerializerConfiguration configuration, bool leaveOpen)
         {
-            if (writer == null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
-
-            if (configuration == null)
-            {
-                throw new ArgumentNullException(nameof(configuration));
-            }
-
-            this.writer = writer;
-            this.configuration = configuration;
+            this.writer = writer ?? throw new ArgumentNullException(nameof(writer));
+            this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             this.leaveOpen = leaveOpen;
         }
 

@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Linq;
     using Configuration;
 
     /// <summary>
@@ -67,21 +68,21 @@
         /// Creates a new parser using the given <see cref="TextReader" />.
         /// </summary>
         /// <param name="reader">The <see cref="TextReader" /> with the CSV file data.</param>
-        public CsvParser(TextReader reader) : this(reader, new CsvConfiguration(), false) {}
+        public CsvParser(TextReader reader) : this(reader, new CsvConfiguration(), false) { }
 
         /// <summary>
         /// Creates a new parser using the given <see cref="TextReader" />.
         /// </summary>
         /// <param name="reader">The <see cref="TextReader" /> with the CSV file data.</param>
         /// <param name="leaveOpen">true to leave the reader open after the CsvReader object is disposed, otherwise false.</param>
-        public CsvParser(TextReader reader, bool leaveOpen) : this(reader, new CsvConfiguration(), false) {}
+        public CsvParser(TextReader reader, bool leaveOpen) : this(reader, new CsvConfiguration(), false) { }
 
         /// <summary>
         /// Creates a new parser using the given <see cref="TextReader" /> and <see cref="CsvConfiguration" />.
         /// </summary>
         /// <param name="reader">The <see cref="TextReader" /> with the CSV file data.</param>
         /// <param name="configuration">The configuration.</param>
-        public CsvParser(TextReader reader, ICsvParserConfiguration configuration) : this(reader, configuration, false) {}
+        public CsvParser(TextReader reader, ICsvParserConfiguration configuration) : this(reader, configuration, false) { }
 
         /// <summary>
         /// Creates a new parser using the given <see cref="TextReader" /> and <see cref="CsvConfiguration" />.
@@ -203,7 +204,7 @@
                     continue;
                 }
 
-                if (_recordBuilder.Length == 0 && (_currentCharacter == _configuration.Comment && _configuration.AllowComments || _currentCharacter == '\r' || _currentCharacter == '\n'))
+                if (_recordBuilder.Length == 0 && (_currentCharacter == _configuration.Comment && _configuration.AllowComments || IsEndOfLine()))
                 {
                     ReadBlankLine();
                     if (!_configuration.IgnoreBlankLines)
@@ -214,7 +215,7 @@
                     continue;
                 }
 
-                if (_currentCharacter == _configuration.Quote && previousCharacter != '\\' && !_configuration.IgnoreQuotes)
+                if (IsQuote() && previousCharacter != '\\' && !_configuration.IgnoreQuotes)
                 {
                     if (ReadQuotedField())
                     {
@@ -272,19 +273,19 @@
         /// <returns>True if the end of the line was found, otherwise false.</returns>
         protected virtual bool ReadField()
         {
-            if (_currentCharacter != _configuration.Delimiter[0] && _currentCharacter != '\r' && _currentCharacter != '\n')
+            if (!IsDelimiter() && !IsEndOfLine())
             {
                 _currentCharacter = _fieldReader.GetChar();
             }
 
             while (true)
             {
-                if (_currentCharacter == _configuration.Quote)
+                if (IsQuote())
                 {
                     _fieldReader.IsFieldBad = true;
                 }
 
-                if (_currentCharacter == _configuration.Delimiter[0])
+                if (IsDelimiter())
                 {
                     _fieldReader.SetFieldEnd(-1);
 
@@ -296,7 +297,7 @@
                         return false;
                     }
                 }
-                else if (_currentCharacter == '\r' || _currentCharacter == '\n')
+                else if (IsEndOfLine())
                 {
                     // End of line.
                     _fieldReader.SetFieldEnd(-1);
@@ -321,12 +322,12 @@
         }
 
         /// <summary>
-        /// Reads until the field is not quoted and a delimeter is found.
+        /// Reads until the field is not quoted and a delimiter is found.
         /// </summary>
         /// <returns>True if the end of the line was found, otherwise false.</returns>
         protected virtual bool ReadQuotedField()
         {
-            var inQuotes = true;
+            var isInQuotes = true;
 
             // Set the start of the field to after the quote.
             _fieldReader.SetFieldStart();
@@ -338,16 +339,16 @@
                 var previousCharacter = _currentCharacter;
                 _currentCharacter = _fieldReader.GetChar();
 
-                if (_currentCharacter == _configuration.Quote)
+                if (IsQuote())
                 {
                     if (previousCharacter == '\\')
                     {
                         continue;
                     }
 
-                    inQuotes = !inQuotes;
+                    isInQuotes = !isInQuotes;
 
-                    if (!inQuotes)
+                    if (!isInQuotes)
                     {
                         // Add an offset for the quote.
                         _fieldReader.SetFieldEnd(-1);
@@ -358,9 +359,16 @@
                     continue;
                 }
 
-                if (inQuotes)
+                if (isInQuotes)
                 {
-                    if (_currentCharacter == '\r' || _currentCharacter == '\n')
+                    if (IsDelimiter() && IsQuote((char)previousCharacter))
+                    {
+                        _fieldReader.SetFieldEnd(-2);
+                        _recordBuilder.Add(_fieldReader.GetField());
+                        return false;
+                    }
+
+                    if (IsEndOfLine())
                     {
                         ReadLineEnding();
                         _currentRawRow++;
@@ -374,9 +382,9 @@
                     }
                 }
 
-                if (!inQuotes)
+                if (!isInQuotes)
                 {
-                    if (_currentCharacter == _configuration.Delimiter[0])
+                    if (IsDelimiter())
                     {
                         _fieldReader.SetFieldEnd(-1);
 
@@ -387,7 +395,7 @@
                             return false;
                         }
                     }
-                    else if (_currentCharacter == '\r' || _currentCharacter == '\n')
+                    else if (IsEndOfLine())
                     {
                         _fieldReader.SetFieldEnd(-1);
                         var offset = ReadLineEnding();
@@ -416,7 +424,7 @@
             if (_currentCharacter == '=')
             {
                 _currentCharacter = _fieldReader.GetChar();
-                if (_currentCharacter == _configuration.Quote && !_configuration.IgnoreQuotes)
+                if (IsQuote() && !_configuration.IgnoreQuotes)
                 {
                     // This is a valid Excel formula.
                     return ReadQuotedField();
@@ -426,7 +434,7 @@
             // The format is invalid.
             // Excel isn't consistent, so just read as normal.
 
-            if (_currentCharacter == _configuration.Quote && !_configuration.IgnoreQuotes)
+            if (IsQuote() && !_configuration.IgnoreQuotes)
             {
                 return ReadQuotedField();
             }
@@ -435,7 +443,7 @@
         }
 
         /// <summary>
-        /// Reads until the delimeter is done.
+        /// Reads until the delimiter is done.
         /// </summary>
         /// <returns>
         /// True if a delimiter was read. False if the sequence of
@@ -443,7 +451,7 @@
         /// </returns>
         protected virtual bool ReadDelimiter()
         {
-            if (_currentCharacter != _configuration.Delimiter[0])
+            if (!IsDelimiter())
             {
                 throw new InvalidOperationException("Tried reading a delimiter when the first delimiter char didn't match the current char.");
             }
@@ -498,6 +506,31 @@
             }
 
             _hasExcelSeparatorBeenRead = true;
+        }
+
+        private bool IsDelimiter(char character)
+        {
+            return Configuration.Delimiter.Any(p => p == character);
+        }
+
+        private bool IsDelimiter()
+        {
+            return IsDelimiter((char)_currentCharacter);
+        }
+
+        private bool IsEndOfLine()
+        {
+            return _currentCharacter == '\r' || _currentCharacter == '\n';
+        }
+
+        private bool IsQuote(char character)
+        {
+            return character == _configuration.Quote;
+        }
+
+        private bool IsQuote()
+        {
+            return IsQuote((char) _currentCharacter);
         }
     }
 }

@@ -10,27 +10,27 @@
     /// </summary>
     public class FieldReader : IDisposable
     {
-        private readonly char[] buffer;
+        private readonly char[] _buffer;
 
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
-        private StringBuilder rawRecord = new StringBuilder();
+        private StringBuilder _rawRecord = new StringBuilder();
 
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
-        private StringBuilder field = new StringBuilder();
+        private StringBuilder _field = new StringBuilder();
 
-        private int bufferPosition;
+        private int _bufferPosition;
 
-        private int fieldStartPosition;
+        private int _fieldStartPosition;
 
-        private int fieldEndPosition;
+        private int _fieldEndPosition;
 
-        private int rawRecordStartPosition;
+        private int _rawRecordStartPosition;
 
-        private int rawRecordEndPosition;
+        private int _rawRecordEndPosition;
 
-        private int charsRead;
+        private int _charsRead;
 
-        private bool disposed;
+        private bool _disposed;
 
         /// <summary>
         /// Gets the character position.
@@ -44,9 +44,9 @@
 
         /// <summary>
         /// Gets all the characters of the record including
-        /// quotes, delimeters, and line endings.
+        /// quotes, delimiters, and line endings.
         /// </summary>
-        public string RawRecord => rawRecord.ToString();
+        public string RawRecord => _rawRecord.ToString();
 
         /// <summary>
         /// Gets the <see cref="TextReader" /> that is read from.
@@ -73,7 +73,7 @@
         public FieldReader(TextReader reader, ICsvParserConfiguration configuration)
         {
             Reader = reader;
-            buffer = new char[configuration.BufferSize];
+            _buffer = new char[configuration.BufferSize];
             Configuration = configuration;
         }
 
@@ -83,47 +83,47 @@
         /// <returns></returns>
         public virtual int GetChar()
         {
-            if (bufferPosition >= charsRead)
+            if (_bufferPosition >= _charsRead)
             {
                 if (Configuration.CountBytes)
                 {
-                    BytePosition += Configuration.Encoding.GetByteCount(buffer, rawRecordStartPosition, rawRecordEndPosition - rawRecordStartPosition);
+                    BytePosition += Configuration.Encoding.GetByteCount(_buffer, _rawRecordStartPosition, _rawRecordEndPosition - _rawRecordStartPosition);
                 }
 
-                rawRecord.Append(new string(buffer, rawRecordStartPosition, bufferPosition - rawRecordStartPosition));
-                rawRecordStartPosition = 0;
+                _rawRecord.Append(new string(_buffer, _rawRecordStartPosition, _bufferPosition - _rawRecordStartPosition));
+                _rawRecordStartPosition = 0;
 
-                if (fieldEndPosition <= fieldStartPosition)
+                if (_fieldEndPosition <= _fieldStartPosition)
                 {
                     // If the end position hasn't been set yet, use the buffer position instead.
-                    fieldEndPosition = bufferPosition;
+                    _fieldEndPosition = _bufferPosition;
                 }
 
-                field.Append(new string(buffer, fieldStartPosition, fieldEndPosition - fieldStartPosition));
-                bufferPosition = 0;
-                rawRecordEndPosition = 0;
-                fieldStartPosition = 0;
-                fieldEndPosition = 0;
+                _field.Append(new string(_buffer, _fieldStartPosition, _fieldEndPosition - _fieldStartPosition));
+                _bufferPosition = 0;
+                _rawRecordEndPosition = 0;
+                _fieldStartPosition = 0;
+                _fieldEndPosition = 0;
 
-                charsRead = Reader.Read(buffer, 0, buffer.Length);
-                if (charsRead == 0)
+                _charsRead = Reader.Read(_buffer, 0, _buffer.Length);
+                if (_charsRead == 0)
                 {
                     // End of file.
 
                     // Clear out the buffer in case the stream
                     // is written to again and we need to read some more.
-                    for (var i = 0; i < buffer.Length; i++)
+                    for (var i = 0; i < _buffer.Length; i++)
                     {
-                        buffer[i] = '\0';
+                        _buffer[i] = '\0';
                     }
 
                     return -1;
                 }
             }
 
-            var c = buffer[bufferPosition];
-            bufferPosition++;
-            rawRecordEndPosition = bufferPosition;
+            var c = _buffer[_bufferPosition];
+            _bufferPosition++;
+            _rawRecordEndPosition = _bufferPosition;
 
             CharPosition++;
 
@@ -140,24 +140,24 @@
 
             if (IsFieldBad && Configuration.ThrowOnBadData)
             {
-                throw new CsvBadDataException($"Field: '{field}'");
+                throw new CsvBadDataException($"Field: '{_field}'");
             }
 
             if (IsFieldBad)
             {
-                Configuration.BadDataCallback?.Invoke(field.ToString());
+                Configuration.BadDataCallback?.Invoke(_field.ToString());
             }
 
             IsFieldBad = false;
 
             if (Configuration.UnescapeQuotes)
             {
-                field.Replace("\\\"", "\"").Replace("\\'", "'");
+                _field.Replace("\\\"", "\"").Replace("\\'", "'");
             }
 
-            var result = field.ToString();
+            var result = _field.ToString();
 
-            field.Clear();
+            _field.Clear();
 
             return result;
         }
@@ -169,16 +169,16 @@
         {
             if (Configuration.CountBytes)
             {
-                BytePosition += Configuration.Encoding.GetByteCount(buffer, rawRecordStartPosition, bufferPosition - rawRecordStartPosition);
+                BytePosition += Configuration.Encoding.GetByteCount(_buffer, _rawRecordStartPosition, _bufferPosition - _rawRecordStartPosition);
             }
 
-            rawRecord.Append(new string(buffer, rawRecordStartPosition, rawRecordEndPosition - rawRecordStartPosition));
-            rawRecordStartPosition = rawRecordEndPosition;
+            _rawRecord.Append(new string(_buffer, _rawRecordStartPosition, _rawRecordEndPosition - _rawRecordStartPosition));
+            _rawRecordStartPosition = _rawRecordEndPosition;
 
-            var length = fieldEndPosition - fieldStartPosition;
-            field.Append(new string(buffer, fieldStartPosition, length));
-            fieldStartPosition = bufferPosition;
-            fieldEndPosition = 0;
+            var length = _fieldEndPosition - _fieldStartPosition;
+            _field.Append(new string(_buffer, _fieldStartPosition, length));
+            _fieldStartPosition = _bufferPosition;
+            _fieldEndPosition = 0;
         }
 
         /// <summary>
@@ -190,10 +190,10 @@
         /// </param>
         public virtual void SetFieldStart(int offset = 0)
         {
-            var position = bufferPosition + offset;
+            var position = _bufferPosition + offset;
             if (position >= 0)
             {
-                fieldStartPosition = position;
+                _fieldStartPosition = position;
             }
         }
 
@@ -206,10 +206,10 @@
         /// </param>
         public virtual void SetFieldEnd(int offset = 0)
         {
-            var position = bufferPosition + offset;
+            var position = _bufferPosition + offset;
             if (position >= 0)
             {
-                fieldEndPosition = position;
+                _fieldEndPosition = position;
             }
         }
 
@@ -222,10 +222,10 @@
         /// </param>
         public virtual void SetRawRecordEnd(int offset)
         {
-            var position = bufferPosition + offset;
+            var position = _bufferPosition + offset;
             if (position >= 0)
             {
-                rawRecordEndPosition = position;
+                _rawRecordEndPosition = position;
             }
         }
 
@@ -237,7 +237,7 @@
 #if NET_2_0 || NET_3_5
 			rawRecord = new StringBuilder();
 #else
-            rawRecord.Clear();
+            _rawRecord.Clear();
 #endif
         }
 
@@ -257,7 +257,7 @@
         /// <param name="disposing">True if the instance needs to be disposed of.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (disposed)
+            if (_disposed)
             {
                 return;
             }
@@ -267,7 +267,7 @@
                 Reader?.Dispose();
             }
 
-            disposed = true;
+            _disposed = true;
             Reader = null;
         }
     }

@@ -55,7 +55,7 @@ namespace CsvHelper.Configuration
 
         /// <summary>
         /// Gets or sets a value indicating the if the CSV
-        /// file contains the Excel "sep=delimeter" config
+        /// file contains the Excel "sep=delimiter" config
         /// option in the first row.
         /// </summary>
         public virtual bool HasExcelSeparator { get; set; }
@@ -106,22 +106,20 @@ namespace CsvHelper.Configuration
         /// </summary>
         public virtual string Delimiter
         {
-            get { return _delimiter; }
+            get => _delimiter;
+
             set
             {
-                if (value == "\n")
+                switch (value)
                 {
-                    throw new CsvConfigurationException("Newline is not a valid delimiter.");
-                }
+                    case "\n":
+                        throw new CsvConfigurationException("Newline is not a valid delimiter.");
 
-                if (value == "\r")
-                {
-                    throw new CsvConfigurationException("Carriage return is not a valid delimiter.");
-                }
+                    case "\r":
+                        throw new CsvConfigurationException("Carriage return is not a valid delimiter.");
 
-                if (value == "\0")
-                {
-                    throw new CsvConfigurationException("Null is not a valid delimiter.");
+                    case "\0":
+                        throw new CsvConfigurationException("Null is not a valid delimiter.");
                 }
 
                 if (value == Convert.ToString(_quote))
@@ -141,7 +139,7 @@ namespace CsvHelper.Configuration
         /// </summary>
         public virtual char Quote
         {
-            get { return _quote; }
+            get => _quote;
             set
             {
                 if (value == '\n')
@@ -223,7 +221,7 @@ namespace CsvHelper.Configuration
         /// </value>
         public virtual bool QuoteAllFields
         {
-            get { return _quoteAllFields; }
+            get => _quoteAllFields;
             set
             {
                 _quoteAllFields = value;
@@ -245,7 +243,7 @@ namespace CsvHelper.Configuration
         /// </value>
         public virtual bool QuoteNoFields
         {
-            get { return _quoteNoFields; }
+            get => _quoteNoFields;
             set
             {
                 _quoteNoFields = value;
@@ -275,8 +273,8 @@ namespace CsvHelper.Configuration
         /// </summary>
         public virtual CultureInfo CultureInfo
         {
-            get { return _cultureInfo; }
-            set { _cultureInfo = value; }
+            get => _cultureInfo;
+            set => _cultureInfo = value;
         }
 
         /// <summary>
@@ -297,13 +295,12 @@ namespace CsvHelper.Configuration
 
         /// <summary>
         /// Gets or sets a value indicating if quotes should be
-        /// ingored when parsing and treated like any other character.
+        /// ignored when parsing and treated like any other character.
         /// </summary>
         public virtual bool IgnoreQuotes { get; set; }
 
         /// <summary>
         /// Unescape single and double quotes in string fields.
-        /// 
         /// Defaults to [true].
         /// </summary>
         public bool UnescapeQuotes { get; set; }
@@ -367,7 +364,7 @@ namespace CsvHelper.Configuration
 
         /// <summary>
         /// Gets or sets a value indicating whether
-        /// exceptions that occur duruing reading
+        /// exceptions that occur during reading
         /// should be ignored. True to ignore exceptions,
         /// otherwise false. Default is false.
         /// </summary>
@@ -381,19 +378,9 @@ namespace CsvHelper.Configuration
         public virtual Action<CsvHelperException, ICsvReader> ReadingExceptionCallback { get; set; }
 
         /// <summary>
-        /// Convert empty or literal null ("NULL", "null") values to null. 
+        /// Convert empty or literal null ("NULL", "null") values to null.
         /// </summary>
         public bool TranslateLiteralNulls { get; set; }
-
-        /// <summary>
-        /// Builds the values for the RequiredQuoteChars property.
-        /// </summary>
-        private void BuildRequiredQuoteChars()
-        {
-            _quoteRequiredChars = _delimiter.Length > 1
-                ? new[] { '\r', '\n' }
-                : new[] { '\r', '\n', _delimiter[0] };
-        }
 
         /// <summary>
         /// The configured <see cref="CsvClassMap" />s.
@@ -457,7 +444,7 @@ namespace CsvHelper.Configuration
         }
 
         /// <summary>
-        /// Creates a map of the specified class annotated with <see cref="CsvFieldAttribute"/> and registers it.
+        /// Creates a map of the specified class annotated with <see cref="CsvFieldAttribute" /> and registers it.
         /// </summary>
         /// <typeparam name="T">Type of the class to be registered.</typeparam>
         /// <returns></returns>
@@ -522,7 +509,7 @@ namespace CsvHelper.Configuration
         }
 
         /// <summary>
-        /// Creates a map of the specified class annotated with <see cref="CsvFieldAttribute"/>.
+        /// Creates a map of the specified class annotated with <see cref="CsvFieldAttribute" />.
         /// </summary>
         /// <typeparam name="T">Type of the class to be registered.</typeparam>
         /// <returns></returns>
@@ -562,6 +549,16 @@ namespace CsvHelper.Configuration
             }
 
             return map;
+        }
+
+        /// <summary>
+        /// Builds the values for the RequiredQuoteChars property.
+        /// </summary>
+        private void BuildRequiredQuoteChars()
+        {
+            _quoteRequiredChars = _delimiter.Length > 1
+                ? new[] { '\r', '\n' }
+                : new[] { '\r', '\n', _delimiter[0] };
         }
     }
 }

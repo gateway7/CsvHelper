@@ -43,7 +43,7 @@
 
         /// <summary>
         /// Gets or sets a value indicating the if the CSV
-        /// file contains the Excel "sep=delimeter" config
+        /// file contains the Excel "sep=delimiter" config
         /// option in the first row.
         /// </summary>
         bool HasExcelSeparator { get; set; }
@@ -76,7 +76,7 @@
 
         /// <summary>
         /// Gets or sets a value indicating if quotes should be
-        /// ingored when parsing and treated like any other character.
+        /// ignored when parsing and treated like any other character.
         /// </summary>
         bool IgnoreQuotes { get; set; }
 
@@ -95,6 +95,7 @@
         /// Gets or sets the delimiter used to separate fields.
         /// Default is ',';
         /// </summary>
+        /// TODO: why is it a string???
         string Delimiter { get; set; }
     }
 }

@@ -903,6 +903,27 @@ namespace CsvHelper.Tests
         }
 
         [Fact]
+        public void QuotedBackslashTest()
+        {
+            using (var stream = new MemoryStream())
+            using (var writer = new StreamWriter(stream))
+            using (var reader = new StreamReader(stream))
+            using (var parser = new CsvParser(reader))
+            {
+                writer.Write(@"1,2,""\\"",3,4");
+                writer.Flush();
+                stream.Position = 0;
+
+                var row = parser.Read();
+                Assert.Equal("1", row[0]);
+                Assert.Equal("2", row[1]);
+                Assert.Equal(@"\\", row[2]);
+                Assert.Equal("3", row[3]);
+                Assert.Equal("4", row[4]);
+            }
+        }
+
+        [Fact]
         public void UnescapeQuotesTest()
         {
             using (var stream = new MemoryStream())
@@ -1078,10 +1099,10 @@ namespace CsvHelper.Tests
                 writer.Flush();
                 stream.Position = 0;
 
-                var r1 = parser.Read();
+                parser.Read();
                 Assert.Equal(10, parser.BytePosition);
 
-                var r2 = parser.Read();
+                parser.Read();
                 Assert.Equal(25, parser.BytePosition);
 
                 Assert.Null(parser.Read());

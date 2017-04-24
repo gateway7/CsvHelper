@@ -32,12 +32,7 @@ namespace CsvHelper.TypeConversion
                 throw new ArgumentNullException(nameof(type));
             }
 
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
-
-            _options[type] = options;
+            _options[type] = options ?? throw new ArgumentNullException(nameof(options));
         }
 
         /// <summary>
