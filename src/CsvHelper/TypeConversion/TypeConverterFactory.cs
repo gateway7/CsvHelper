@@ -16,9 +16,9 @@ namespace CsvHelper.TypeConversion
     /// </summary>
     public static class TypeConverterFactory
     {
-        private static readonly Dictionary<Type, ITypeConverter> typeConverters = new Dictionary<Type, ITypeConverter>();
+        private static readonly Dictionary<Type, ITypeConverter> TypeConverters = new Dictionary<Type, ITypeConverter>();
 
-        private static readonly object locker = new object();
+        private static readonly object Locker = new object();
 
         /// <summary>
         /// Adds the <see cref="ITypeConverter" /> for the given <see cref="System.Type" />.
@@ -37,9 +37,9 @@ namespace CsvHelper.TypeConversion
                 throw new ArgumentNullException(nameof(typeConverter));
             }
 
-            lock (locker)
+            lock (Locker)
             {
-                typeConverters[type] = typeConverter;
+                TypeConverters[type] = typeConverter;
             }
         }
 
@@ -55,9 +55,9 @@ namespace CsvHelper.TypeConversion
                 throw new ArgumentNullException(nameof(typeConverter));
             }
 
-            lock (locker)
+            lock (Locker)
             {
-                typeConverters[typeof(T)] = typeConverter;
+                TypeConverters[typeof(T)] = typeConverter;
             }
         }
 
@@ -72,9 +72,9 @@ namespace CsvHelper.TypeConversion
                 throw new ArgumentNullException(nameof(type));
             }
 
-            lock (locker)
+            lock (Locker)
             {
-                typeConverters.Remove(type);
+                TypeConverters.Remove(type);
             }
         }
 
@@ -99,9 +99,9 @@ namespace CsvHelper.TypeConversion
                 throw new ArgumentNullException(nameof(type));
             }
 
-            lock (locker)
+            lock (Locker)
             {
-                if (typeConverters.TryGetValue(type, out ITypeConverter typeConverter))
+                if (TypeConverters.TryGetValue(type, out ITypeConverter typeConverter))
                 {
                     return typeConverter;
                 }

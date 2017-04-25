@@ -910,14 +910,16 @@ namespace CsvHelper.Tests
             using (var reader = new StreamReader(stream))
             using (var parser = new CsvParser(reader))
             {
-                writer.Write(@"1,2,""\\"",3,4");
+                writer.WriteLine(@"1,2,""\"",3,4");
                 writer.Flush();
+
                 stream.Position = 0;
 
                 var row = parser.Read();
+
                 Assert.Equal("1", row[0]);
                 Assert.Equal("2", row[1]);
-                Assert.Equal(@"\\", row[2]);
+                Assert.Equal(@"\", row[2]);
                 Assert.Equal("3", row[3]);
                 Assert.Equal("4", row[4]);
             }

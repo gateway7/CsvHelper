@@ -1,11 +1,4 @@
-﻿
-#if WINRT_4_5
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
-
-#endif
-
-namespace CsvHelper.Tests.Parsing
+﻿namespace CsvHelper.Tests.Parsing
 {
     using System.IO;
     using Xunit;

@@ -361,7 +361,7 @@
 
                 if (isInQuotes)
                 {
-                    if (IsDelimiter() && IsQuote((char)previousCharacter))
+                    if (IsDelimiter() && IsQuote(previousCharacter) && PeekFieldChar(-2) == '\\' && IsQuote(PeekFieldChar(-3)))
                     {
                         _fieldReader.SetFieldEnd(-2);
                         _recordBuilder.Add(_fieldReader.GetField());
@@ -508,14 +508,14 @@
             _hasExcelSeparatorBeenRead = true;
         }
 
-        private bool IsDelimiter(char character)
+        private bool IsDelimiter(int character)
         {
             return Configuration.Delimiter.Any(p => p == character);
         }
 
         private bool IsDelimiter()
         {
-            return IsDelimiter((char)_currentCharacter);
+            return IsDelimiter(_currentCharacter);
         }
 
         private bool IsEndOfLine()
@@ -523,14 +523,20 @@
             return _currentCharacter == '\r' || _currentCharacter == '\n';
         }
 
-        private bool IsQuote(char character)
+        private bool IsQuote(int character)
         {
             return character == _configuration.Quote;
         }
 
         private bool IsQuote()
         {
-            return IsQuote((char) _currentCharacter);
+            return IsQuote(_currentCharacter);
+        }
+
+        private int PeekFieldChar(int offset)
+        {
+            // _currentCharacter is at _fieldReader[-1]
+            return _fieldReader.PeekChar(offset - 1);
         }
     }
 }

@@ -131,6 +131,17 @@
         }
 
         /// <summary>
+        /// Peeks the next char at the specified offset from current buffer cursor.
+        /// </summary>
+        /// <returns></returns>
+        public virtual int PeekChar(int offset)
+        {
+            var position = _bufferPosition + offset;
+
+            return position < 0 || position >= _charsRead ? -1 : _buffer[position];
+        }
+
+        /// <summary>
         /// Gets the field. This will append any reading progress.
         /// </summary>
         /// <returns>The current field.</returns>
@@ -234,11 +245,7 @@
         /// </summary>
         public virtual void ClearRawRecord()
         {
-#if NET_2_0 || NET_3_5
-			rawRecord = new StringBuilder();
-#else
             _rawRecord.Clear();
-#endif
         }
 
         /// <summary>
