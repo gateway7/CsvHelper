@@ -39,6 +39,13 @@ namespace CsvHelper.Tests
             SmallMoleculeCompound = 1
         }
 
+        public enum FoodCategory
+        {
+            Generic,
+
+            Specific
+        }
+
         [Fact]
         public void CompoundTest()
         {
@@ -94,7 +101,67 @@ namespace CsvHelper.Tests
             }
         }
 
-        public class Compound
+        [Fact]
+        public void FoodTest()
+        {
+            using (var textReader = File.OpenText(@"d:/downloads/FooDB/foods.csv"))
+            {
+                using (var csv = CreateDataReader(textReader))
+                {
+                    csv.Configuration.RegisterClass<Food>();
+
+                    var foods = csv.GetRecords<Food>().ToList();
+
+                    Assert.Equal(907, foods.Count);
+                    Assert.Equal(924, foods.Max(p => p.FoodbId));
+                }
+            }
+        }
+
+        internal class Food
+        {
+            [CsvField("id")]
+            public short FoodbId { get; set; }
+
+            [CsvField("itis_id")]
+            public int ItisId { get; set; }
+
+            [CsvField("wikipedia_id")]
+            public string WikipediaId { get; set; }
+
+            // [MaxLength(50)]
+            [CsvField("name")]
+            public string Name { get; set; }
+
+            // [MaxLength(49)]
+            [CsvField("name_scientific")]
+            public string ScientificName { get; set; }
+
+            // [MaxLength(3734)]
+            [CsvField("description")]
+            public string Description { get; set; }
+
+            // [MaxLength(57)]
+            [CsvField("picture_file_name")]
+            public string PictureFileName { get; set; }
+
+            // [MaxLength(27)]
+            [CsvField("food_group")]
+            public string FoodGroup { get; set; }
+
+            // [MaxLength(27)]
+            [CsvField("food_subgroup")]
+            public string FoodSubgroup { get; set; }
+
+            // [MaxLength(7)]
+            [CsvField("food_type")]
+            public string FoodType { get; set; }
+
+            [CsvField("category")]
+            public FoodCategory Category { get; set; }
+        }
+
+        internal class Compound
         {
             [CsvField("id")]
             public int FoodbId { get; set; }
@@ -161,34 +228,6 @@ namespace CsvHelper.Tests
             [CsvField("molecular_framework")]
             public string MolecularFramework { get; set; }
 
-#if false
-        [CsvField("legacy_id")]
-        public int? LegacyId { get; set; }
-#endif
-
-#if false
-        [CsvField("protein_formula"), MaxLength(4)]
-        public string ProteinFormula { get; set; }
-
-        [CsvField("protein_weight"), MaxLength(4)]
-        public string ProteinWeight { get; set; }
-
-        [CsvField("experimental_solubility"), MaxLength(50)]
-        public string ExperimentalSolubility { get; set; }
-
-        [CsvField("experimental_logp"), MaxLength(40)]
-        public string ExperimentalLogP { get; set; }
-
-        [CsvField("hydrophobicity"), MaxLength(4)]
-        public string Hydrophobicity { get; set; }
-
-        [CsvField("isoelectric_point"), MaxLength(4)]
-        public string IsoelectricPoint { get; set; }
-
-        [CsvField("metabolism"), MaxLength(474)]
-        public string Metabolism { get; set; }
-#endif
-
             // [MaxLength(24)]
             public string CasRegistryNumber { get; set; }
 
@@ -209,25 +248,9 @@ namespace CsvHelper.Tests
             [CsvField("het_id")]
             public string HetId { get; set; }
 
-#if false
-        [CsvField("uniprot_id")]
-        public string UniprotId { get; set; }
-
-        [CsvField("uniprot_name")]
-        public string UniprotName { get; set; }
-
-        [CsvField("genbank_id")]
-        public string GenbankId { get; set; }
-#endif
-
             // [MaxLength(39)]
             [CsvField("wikipedia_id", Prefix = "http://en.wikipedia.org/wiki/", TrimPrefix = true)]
             public string WikipediaId { get; set; }
-
-#if false
-        [CsvField("synthesis_citations")]
-        public string SynthesisCitations { get; set; }
-#endif
 
             // [MaxLength(816)]
             [CsvField("general_citations")]
@@ -236,46 +259,6 @@ namespace CsvHelper.Tests
             // [MaxLength(682)]
             [CsvField("comments")]
             public string Comments { get; set; }
-
-#if false
-        [CsvField("protein_structure_file_name")]
-        public string ProteinStructureFileName { get; set; }
-
-        [CsvField("protein_structure_content_type")]
-        public string ProteinStructureContentType { get; set; }
-
-        [CsvField("protein_structure_file_size")]
-        public int ProteinStructureFileSize { get; set; }
-
-        [CsvField("protein_structure_updated_at")]
-        public string ProteinStructureUpdatedAt { get; set; }
-#endif
-
-#if false
-
-/// <summary>
-/// All data in the floowing block is available through <see cref="HmdbId" />.
-/// </summary>
-        [CsvField("msds_file_name"), MaxLength(13)]
-        public string MsdsFileName { get; set; }
-
-        [CsvField("msds_content_type"), MaxLength(15)]
-        public string MsdsContentType { get; set; }
-
-        [CsvField("msds_file_size")]
-        public int MsdsFileSize { get; set; }
-
-        [CsvField("msds_updated_at")]
-        public DateTime MsdsUpdatedAt { get; set; }
-#endif
-
-#if false
-        [CsvField("creator_id")]
-        public byte CreatorId { get; set; }
-
-        [CsvField("updater_id")]
-        public byte UpdaterId { get; set; }
-#endif
 
             [CsvField("phenolexplorer_id")]
             public short PhenolexplorerId { get; set; }
@@ -364,70 +347,6 @@ namespace CsvHelper.Tests
             // [MaxLength(3)]
             [CsvField("physical_description_reference")]
             public string PhysicalDescriptionReference { get; set; }
-
-#if false
-        [CsvField("refractive_index"), MaxLength(37)]
-        public string RefractiveIndex { get; set; }
-
-        [CsvField("refractive_index_reference"), MaxLength(3)]
-        public string RefractiveIndexReference { get; set; }
-
-        [CsvField("uv_index"), MaxLength(89)]
-        public string UvIndex { get; set; }
-
-        [CsvField("uv_index_reference"), MaxLength(3)]
-        public string UvIndexReference { get; set; }
-
-        [CsvField("experimental_pka"), MaxLength(54)]
-        public string ExperimentalPka { get; set; }
-
-        [CsvField("experimental_pka_reference"), MaxLength(3)]
-        public string ExperimentalPkaReference { get; set; }
-
-        [CsvField("experimental_solubility_reference"), MaxLength(47)]
-        public string ExperimentalSolubilityReference { get; set; }
-
-        [CsvField("experimental_logp_reference"), MaxLength(42)]
-        public string ExperimentalLogpReference { get; set; }
-
-        [CsvField("hydrophobicity_reference")]
-        public string HydrophobicityReference { get; set; }
-
-        [CsvField("isoelectric_point_reference")]
-        public string IsoelectricPointReference { get; set; }
-
-        [CsvField("melting_point_reference"), MaxLength(3)]
-        public string MeltingPointReference { get; set; }
-
-        [CsvField("moldb_alogps_logp")]
-        public double MoldbAlogpsLogp { get; set; }
-
-        [CsvField("moldb_logp")]
-        public double MoldbLogp { get; set; }
-
-        [CsvField("moldb_alogps_logs")]
-        public double MoldbAlogpsLogs { get; set; }
-
-        [CsvField("moldb_smiles"), MaxLength(1538)]
-        public string MoldbSmiles { get; set; }
-
-        [CsvField("moldb_pka")]
-        public double MoldbPka { get; set; }
-#endif
-
-#if false
-        [CsvField("moldb_inchi"), MaxLength(2145)]
-        public string MoldbInchi { get; set; }
-
-        [CsvField("moldb_mono_mass")]
-        public double MoldbMonoMass { get; set; }
-
-        [CsvField("moldb_inchikey"), MaxLength(36)]
-        public string MoldbInchikey { get; set; }
-
-        [CsvField("moldb_alogps_solubility"), MaxLength(12)]
-        public string MoldbAlogpsSolubility { get; set; }
-#endif
 
             [CsvField("moldb_id")]
             public int MoldbId { get; set; }

@@ -341,7 +341,7 @@
 
                 if (IsQuote())
                 {
-                    if (previousCharacter == '\\')
+                    if (IsBackslash(previousCharacter))
                     {
                         continue;
                     }
@@ -361,7 +361,8 @@
 
                 if (isInQuotes)
                 {
-                    if (IsDelimiter() && IsQuote(previousCharacter) && PeekFieldChar(-2) == '\\' && IsQuote(PeekFieldChar(-3)))
+                    // TODO: replace this ugliness with something more efficient and elegant! 
+                    if (IsDelimiter() && IsQuote(previousCharacter) &&  IsBackslash(PeekFieldChar(-2)) && IsQuote(PeekFieldChar(-3)) && !IsBackslash(PeekFieldChar(-4)))
                     {
                         _fieldReader.SetFieldEnd(-2);
                         _recordBuilder.Add(_fieldReader.GetField());
@@ -531,6 +532,11 @@
         private bool IsQuote()
         {
             return IsQuote(_currentCharacter);
+        }
+
+        private bool IsBackslash(int character)
+        {
+            return character == '\\';
         }
 
         private int PeekFieldChar(int offset)
