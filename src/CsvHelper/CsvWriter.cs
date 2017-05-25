@@ -17,6 +17,7 @@ namespace CsvHelper
     using Configuration;
     using Microsoft.CSharp.RuntimeBinder;
     using TypeConversion;
+    using Binder = Microsoft.CSharp.RuntimeBinder.Binder;
 
     /// <summary>
     /// Used to write CSV files.
