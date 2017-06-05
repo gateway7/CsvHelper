@@ -26,7 +26,7 @@ namespace CsvHelper.Tests
             Assert.Equal(0, aMap.PropertyMaps[0].Data.Index);
             Assert.Equal(1, aMap.PropertyMaps[1].Data.Index);
             Assert.Equal(2, aMap.PropertyMaps[2].Data.Index);
-            Assert.Equal(true, aMap.PropertyMaps[2].Data.Ignore);
+            Assert.True(aMap.PropertyMaps[2].Data.Ignore);
 
             Assert.Equal(1, aMap.ReferenceMaps.Count);
         }

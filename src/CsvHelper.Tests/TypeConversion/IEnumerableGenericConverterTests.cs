@@ -207,8 +207,8 @@
                 var list = records[0].List.ToList();
 
                 Assert.Equal(3, list.Count);
-                Assert.Equal(null, list[0]);
-                Assert.Equal(null, list[1]);
+                Assert.Null(list[0]);
+                Assert.Null(list[1]);
                 Assert.Equal(4, list[2]);
             }
         }
@@ -232,8 +232,8 @@
                 var list = records[0].List.ToList();
 
                 Assert.Equal(3, list.Count);
-                Assert.Equal(null, list[0]);
-                Assert.Equal(null, list[1]);
+                Assert.Null(list[0]);
+                Assert.Null(list[1]);
                 Assert.Equal(4, list[2]);
             }
         }

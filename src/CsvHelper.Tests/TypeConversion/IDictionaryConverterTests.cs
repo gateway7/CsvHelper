@@ -229,8 +229,8 @@
                 var list = records[0].Dictionary;
 
                 Assert.Equal(3, list.Count);
-                Assert.Equal(null, list["D1"]);
-                Assert.Equal(null, list["D2"]);
+                Assert.Null(list["D1"]);
+                Assert.Null(list["D2"]);
                 Assert.Equal("4", list["D3"]);
             }
         }

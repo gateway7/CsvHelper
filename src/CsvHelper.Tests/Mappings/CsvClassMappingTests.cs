@@ -145,7 +145,7 @@ namespace CsvHelper.Tests.Mappings
             config.RegisterClassMap<AMap>();
             config.Maps.Find<A>().Map(m => m.AId).Ignore();
 
-            Assert.Equal(true, config.Maps[typeof(A)].PropertyMaps[0].Data.Ignore);
+            Assert.True(config.Maps[typeof(A)].PropertyMaps[0].Data.Ignore);
         }
 
         private class A

@@ -40,7 +40,7 @@ namespace CsvHelper.Tests
 
                 var record = records[0];
                 Assert.Equal(-1, record.Id);
-                Assert.Equal(null, record.Name);
+                Assert.Null(record.Name);
                 Assert.Equal(-2, record.Order);
 
                 record = records[1];

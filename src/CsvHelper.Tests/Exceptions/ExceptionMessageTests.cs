@@ -54,7 +54,7 @@
             catch (CsvMissingFieldException ex)
             {
                 Assert.Equal(2, ex.Row);
-                Assert.Equal(ex.Type, typeof(int));
+                Assert.Equal(typeof(int), ex.Type);
                 Assert.Equal(2, ex.FieldIndex);
             }
         }

@@ -39,7 +39,7 @@ namespace CsvHelper.Tests
 
                 Assert.NotNull(record);
                 Assert.Equal(1, record.Id);
-                Assert.Equal(null, record.Name);
+                Assert.Null(record.Name);
 
                 stream.Position = 0;
                 csv.ClearRecordCache<Test>();
